@@ -13,10 +13,14 @@ export default {
   data() {
     return {
       center: [49.84, 24.03],
-      map: {},
-      marker: {},
+      map: null,
+      marker: null,
       markerLatLng: []
     };
+  },
+
+  props: {
+    mapCenter: null
   },
 
   emits: {
@@ -74,6 +78,22 @@ export default {
       );
 
       this.$emit("location-chosen", { lat: position.lat, lng: position.lng });
+    },
+
+    changeLocation() {
+      this.map.panTo(this.center);
+    }
+  },
+  watch: {
+    mapCenter() {
+      if (!this.mapCenter) {
+        return;
+      }
+
+      // console.log("watch called", this.center);
+      this.center = [this.mapCenter.lat, this.mapCenter.lng];
+      console.log(this.center);
+      this.changeLocation();
     }
   }
 };

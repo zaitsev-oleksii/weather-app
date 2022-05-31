@@ -3,28 +3,7 @@
     <div
       class="sm:w-full md:w-2/5 lg:w-1/3 md:h-screen float-left p-8 md:shadow-lg"
     >
-      <div class="w-full relative">
-        <input
-          v-model="currentCity"
-          @input="handleCitiesInputChange"
-          class="w-full"
-          type="text"
-          placeholder="Enter your city..."
-        />
-        <ul class="w-full z-10 absolute list-none" v-if="cities.length > 0">
-          <li
-            class="w-full p-3 odd:bg-white even:bg-slate-100 border-x-2 border-b-2"
-            v-for="(city, idx) of cities"
-            :key="idx"
-            @click="handleAutocompleteClick(city)"
-          >
-            {{ city }}
-          </li>
-        </ul>
-      </div>
-      <div class="mt-10 z-0 relative">
-        <LeafletMap @location-chosen="handleChooseLoc" />
-      </div>
+      <location-form @location-chosen="handleChooseLoc" />
       <div v-if="currentLocation" class="mt-10">
         <current-weather :latlng="currentLocation" />
       </div>
@@ -39,9 +18,9 @@
         </button>
         <button
           class="p-1 rounded-md text-lg font-semibold"
-          @click="currentTab = 'CurrentWeather'"
+          @click="currentTab = 'ForecastWeather'"
         >
-          Current
+          3 Days
         </button>
       </div>
       <div class="w-full">
@@ -60,18 +39,17 @@
 </template>
 
 <script>
-import LeafletMap from "./components/LeafletMap.vue";
+import LocationForm from "./components/LocationForm.vue";
 import CurrentWeather from "./components/CurrentWeather.vue";
 import TodayWeather from "./components/TodayWeather.vue";
+import ForecastWeather from "./components/ForecastWeather.vue";
 
 export default {
   name: "App",
-  components: { LeafletMap, CurrentWeather, TodayWeather },
+  components: { LocationForm, CurrentWeather, TodayWeather, ForecastWeather },
 
   data() {
     return {
-      currentCity: "",
-      cities: [],
       currentLocation: null,
       currentTab: "TodayWeather"
     };
@@ -96,30 +74,6 @@ export default {
       // console.log(res);
       // const region = res.data[0].region;
       // this.currentCity = region;
-    },
-    async handleCitiesInputChange() {
-      const prefix = this.currentCity;
-      if (!prefix) {
-        this.cities = [];
-        return;
-      }
-      const accessToken = "pk.c4c504420e844b45f50ec36aa44e6098";
-      // const fetchedCities = await fetch(
-      //   `http://geodb-free-service.wirefreethought.com/v1/geo/cities?limit=5&offset=0&namePrefix=${prefix}`
-      // );
-      const fetchedCities = await fetch(
-        `https://api.locationiq.com/v1/autocomplete.php?key=${accessToken}&q=${prefix}`
-      );
-      const parsedCities = await fetchedCities.json();
-      // console.log(parsedCities);
-      // console.log(parsedCities);
-      if ("error" in parsedCities) {
-        return;
-      }
-      this.cities = parsedCities.map((place) => place.address.name).slice(0, 5);
-    },
-    handleAutocompleteClick(city) {
-      this.currentCity = city;
     }
   }
 };

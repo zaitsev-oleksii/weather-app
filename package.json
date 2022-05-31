@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.2",
+    "async-sema": "^3.1.1",
     "autoprefixer": "^10",
     "core-js": "^3.8.3",
     "leaflet": "^1.8.0",
