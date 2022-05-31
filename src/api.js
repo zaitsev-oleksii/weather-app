@@ -43,10 +43,9 @@ export const getTodayWeatherData = async ({ lat, lng }) => {
   if (!(lat && lng)) {
     return;
   }
-  const reqURL = `http://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${lat},${lng}&days=1`;
+  const reqURL = `http://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${lat},${lng}&days=1&aqi=yes`;
   const parsedData = await fetch(reqURL)
     .then((res) => res.json())
-    .then((r) => r.forecast.forecastday[0].hour)
     .catch((error) => {
       console.log(
         "Error occured while getting today weather from API. ",
@@ -54,7 +53,7 @@ export const getTodayWeatherData = async ({ lat, lng }) => {
       );
     });
   // console.log(parsedData);
-  return parsedData.map((hour) => ({
+  const hours = parsedData.forecast.forecastday[0].hour.map((hour) => ({
     imgSrc: hour.condition.icon,
     datetime: new Date(hour.time),
     temp: hour.temp_c,
@@ -62,8 +61,17 @@ export const getTodayWeatherData = async ({ lat, lng }) => {
     windSpeed: hour.wind_kph,
     windDegree: hour.wind_degree,
     pressure: hour.pressure_in,
-    cloudCover: hour.cloud
+    cloudCover: hour.cloud,
+    uv: hour.uv
   }));
+
+  return {
+    hours,
+    aqi: {
+      pm2_5: parsedData.current.air_quality.pm2_5,
+      pm10: parsedData.current.air_quality.pm10
+    }
+  };
 };
 
 export const getForecastWeatherData = async ({ lat, lng }) => {
