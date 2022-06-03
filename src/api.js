@@ -62,7 +62,8 @@ export const getTodayWeatherData = async ({ lat, lng }) => {
     windDegree: hour.wind_degree,
     pressure: hour.pressure_in,
     cloudCover: hour.cloud,
-    uv: hour.uv
+    uv: hour.uv,
+    rainingChance: hour.chance_of_rain
   }));
 
   return {
@@ -70,7 +71,11 @@ export const getTodayWeatherData = async ({ lat, lng }) => {
     aqi: {
       pm2_5: parsedData.current.air_quality.pm2_5,
       pm10: parsedData.current.air_quality.pm10
-    }
+    },
+    sunrise: parsedData.forecast.forecastday[0].astro.sunrise,
+    sunset: parsedData.forecast.forecastday[0].astro.sunset,
+    minTemp: parsedData.forecast.forecastday[0].day.mintemp_c,
+    maxTemp: parsedData.forecast.forecastday[0].day.maxtemp_c
   };
 };
 
@@ -90,12 +95,19 @@ export const getForecastWeatherData = async ({ lat, lng }) => {
       );
     });
   // console.log(parsedData);
-  return parsedData.map((forecastday) => ({
+  const days = parsedData.map((forecastday) => ({
     imgSrc: forecastday.day.condition.icon,
     datetime: new Date(forecastday.date),
     minTemp: forecastday.day.mintemp_c,
-    maxTemp: forecastday.day.maxtemp_c
+    maxTemp: forecastday.day.maxtemp_c,
+    sunrise: forecastday.astro.sunrise,
+    sunset: forecastday.astro.sunset,
+    rainingChance: forecastday.day.daily_chance_of_rain,
+    humidity: forecastday.day.avghumidity,
+    uv: forecastday.day.uv
   }));
+
+  return { days };
 };
 
 export const getPlacesAutocompleteSuggestions = async (prefix, limit) => {
@@ -142,4 +154,25 @@ export const getPlacesAutocompleteSuggestions = async (prefix, limit) => {
       lon: place.lon
     }))
     .slice(0, limit);
+};
+
+export const getPlaceByLocation = async (location) => {
+  if (!location) {
+    return;
+  }
+  const { lat, lng } = location;
+  const reqURL = `http://api.weatherapi.com/v1/search.json?key=${WEATHER_API_KEY}&q=${lat},${lng}`;
+  const parsedData = await fetch(reqURL)
+    .then((res) => res.json())
+    .then((r) => r[0])
+    .catch((error) => {
+      console.log("Error occured while getting place name from API. ", error);
+    });
+  if (!parsedData) {
+    return;
+  }
+  return {
+    name: parsedData.name,
+    country: parsedData.country
+  };
 };

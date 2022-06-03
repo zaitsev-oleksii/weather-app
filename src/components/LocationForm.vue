@@ -42,9 +42,11 @@ export default {
       places: []
     };
   },
+
   emits: {
     "location-chosen": null
   },
+
   methods: {
     handleChooseLoc(loc) {
       this.currentLocation = loc;
@@ -59,10 +61,11 @@ export default {
       // const region = res.data[0].region;
       // this.currentCity = region;
     },
+
     async handlePlacesInputChange() {
       const prefix = this.currentPlace;
       if (!prefix) {
-        this.places = [];
+        this.clearSuggestions();
         return;
       }
       const autoCompleteSuggestions = await getPlacesAutocompleteSuggestions(
@@ -74,11 +77,13 @@ export default {
       }
       this.places = autoCompleteSuggestions;
     },
+
     handleAutocompleteClick(place) {
       this.currentPlace = place.placeName;
       this.handleChooseLoc({ lat: place.lat, lng: place.lon });
-      this.places = [];
+      this.clearSuggestions();
     },
+
     async handleEnterClick() {
       const prefix = this.currentPlace;
       if (!prefix) {
@@ -87,6 +92,11 @@ export default {
       const place = (await getPlacesAutocompleteSuggestions(prefix, 1))[0];
       console.log(place);
       this.handleChooseLoc({ lat: place.lat, lng: place.lon });
+      this.clearSuggestions();
+    },
+
+    clearSuggestions() {
+      console.log("clearSuggestions");
       this.places = [];
     }
   }

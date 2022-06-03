@@ -1,15 +1,74 @@
 <template>
+  <div class="w-full h-full">
+    <div class="float-left mt-3 pr-3 w-62/100 h-full" v-if="selectedHour">
+      <weather-details
+        :humidity="selectedHour.humidity"
+        :windSpeed="selectedHour.windSpeed"
+        :pressure="selectedHour.pressure"
+        :cloudCover="selectedHour.cloudCover"
+        :uv="selectedHour.uv"
+      />
+    </div>
+    <div class="float-left mt-3 pl-3 w-38/100 h-full">
+      <div class="p-3 w-full h-full rounded-3xl bg-custom-dark-gunmetal">
+        <div
+          class="flex flex-row gap-3 w-full h-full rounded-3xl overflow-x-auto snap-x snap-mandatory no-scrollbar"
+          ref="hours"
+        >
+          <div
+            class="flex flex-col shrink-0 basis-24 p-2 h-full text-center rounded-2xl bg-custom-gunmetal"
+            :class="{
+              'bg-custom-abbey': hour === selectedHour
+            }"
+            v-for="hour in hours"
+            :key="hour"
+            @click="setSelectedHour(hour)"
+            ref="hour"
+          >
+            <span class="w-full text-white">{{
+              (hour.datetime.getHours().toString().length === 1
+                ? "0" + hour.datetime.getHours()
+                : hour.datetime.getHours()) + ":00"
+            }}</span>
+            <span class="my-auto w-full"
+              ><i class="bi bi-cloud text-white text-6xl"></i
+            ></span>
+            <span class="mt-auto mb-1 w-full">
+              <span class="mt-auto text-3xl font-bold text-white">{{
+                hour.temp.toFixed(0)
+              }}</span>
+              <span class="align-top font-bold text-white">°C</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- <span class="text-2xl">Today's Highlights</span>
+  <div class="flex flex-wrap justify-around gap-7 w-full mt-5 p-5">
+    <weather-details
+      :aqi="todayAQI ? Math.max(...Object.values(todayAQI)) : undefined"
+      :sunrise="sunrise"
+      :sunset="sunset"
+      :minTemp="minTemp"
+      :maxTemp="maxTemp"
+    />
+  </div>
+
+  <span class="text-2xl mt-10">Hourly</span>
   <div
     ref="hours"
-    class="flex gap-1 w-full overflow-x-auto snap-x snap-mandatory no-scrollbar"
+    class="flex gap-1 w-full mt-5 overflow-x-auto snap-x snap-mandatory no-scrollbar"
   >
     <div
       ref="hour"
-      v-for="hour in hours"
+      v-for="(hour, idx) in hours"
       :key="hour"
-      class="p-2 w-16 snap-center bg-slate-300 rounded-md text-center"
+      class="p-2 w-20 snap-center bg-slate-300 rounded-md text-center"
       :class="{
-        'bg-slate-400': hour === selectedHour
+        'bg-slate-400': hour === selectedHour,
+        'ml-auto': idx === 0,
+        'mr-auto': idx === hours.length - 1
       }"
       @click="setSelectedHour(hour)"
     >
@@ -25,113 +84,48 @@
     </div>
   </div>
 
-  <!-- SELECTED HOUR -->
   <div
-    class="flex flex-wrap justify-around gap-7 w-full mt-5 bg-slate-300 p-5"
+    class="flex flex-wrap justify-around gap-7 w-full mt-5 p-5"
     v-if="selectedHour"
   >
-    <div class="w-36 h-36 p-3 bg-slate-400 rounded-md">
-      <div class="float-left flex flex-col w-3/4">
-        <span class="text-md text-slate-800">Humidity</span>
-        <span class="text-4xl mt-3 font-semibold"
-          >{{ selectedHour.humidity }}%</span
-        >
-      </div>
-      <div
-        class="relative float-left w-1/4 h-full rounded-md border-gray-800 border-2"
-      >
-        <div
-          class="absolute bottom-0 bg-blue-700 w-full rounded-b-md"
-          :class="{
-            'rounded-t-md': selectedHour.humidity === 100
-          }"
-          :style="{
-            height: selectedHour.humidity + '%'
-          }"
-        ></div>
-      </div>
-    </div>
-    <div class="relative w-36 h-36 bg-slate-400 rounded-md">
-      <div class="float-left p-3 flex flex-col w-3/4">
-        <span class="text-md text-slate-800">Wind</span>
-        <span class="text-3xl mt-3 font-semibold"
-          >{{ selectedHour.windSpeed }} km/h</span
-        >
-      </div>
-      <div class="absolute right-1 top-1/4 w-1/2 h-1/2">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          class="bi bi-arrow-up opacity-20"
-          :style="{
-            transform: `rotate(${selectedHour.windDegree}deg)`
-          }"
-          viewBox="0 0 16 16"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"
-          />
-        </svg>
-      </div>
-    </div>
-    <div class="relative w-36 h-36 bg-slate-400 rounded-md">
-      <div class="float-left p-3 flex flex-col w-3/4">
-        <span class="text-md text-slate-800">Pressure</span>
-        <span class="text-3xl mt-3 font-semibold"
-          >{{ selectedHour.pressure }} in</span
-        >
-      </div>
-    </div>
-    <div class="relative w-36 h-36 bg-slate-400 rounded-md">
-      <div class="float-left p-3 flex flex-col w-3/4">
-        <span class="text-md text-slate-800">Cloud</span>
-        <span class="text-3xl mt-3 font-semibold"
-          >{{ selectedHour.cloudCover }}%</span
-        >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="currentColor"
-          class="absolute right-2 top-1/4 w-2/3 h-2/3 bi bi-cloud-fill opacity-20"
-          viewBox="0 0 16 16"
-        >
-          <path
-            d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383z"
-          />
-        </svg>
-      </div>
-    </div>
-    <div class="relative w-36 h-36 bg-slate-400 rounded-md">
-      <div class="float-left p-3 flex flex-col w-3/4">
-        <span class="text-md text-slate-800">AQI</span>
-        <span class="text-3xl mt-3 font-semibold">{{
-          Math.max(...Object.values(todayAQI))
-        }}</span>
-      </div>
-    </div>
-    <div class="relative w-36 h-36 bg-slate-400 rounded-md">
-      <div class="float-left p-3 flex flex-col w-3/4">
-        <span class="text-md text-slate-800">UV</span>
-        <span class="text-3xl mt-3 font-semibold">{{ selectedHour.uv }}</span>
-      </div>
-    </div>
-  </div>
+    <weather-details
+      :humidity="selectedHour.humidity"
+      :windSpeed="selectedHour.windSpeed"
+      :windDegree="selectedHour.windDegree"
+      :pressure="selectedHour.pressure"
+      :cloudCover="selectedHour.cloudCover"
+      :uv="selectedHour.uv"
+      :rainingChance="selectedHour.rainingChance"
+    />
+  </div> -->
 </template>
 
 <script>
 import { getTodayWeatherData as getData } from "../api";
 
+import WeatherDetails from "./WeatherDetails.vue";
+
 export default {
   name: "TodayWeather",
+  components: { WeatherDetails },
   data() {
     return {
       hours: [],
       selectedHour: null,
-      todayAQI: null
+      todayAQI: null,
+      sunrise: "",
+      sunset: "",
+      minTemp: undefined,
+      maxTemp: undefined
     };
   },
   props: {
     latlng: Object
+  },
+  mounted() {
+    if (this.latlng) {
+      this.getTodayWeatherData(this.latlng);
+    }
   },
   activated() {
     this.scrollToSelectedHour();
@@ -151,11 +145,33 @@ export default {
   methods: {
     async getTodayWeatherData({ lat, lng }) {
       const data = await getData({ lat, lng });
-      this.hours = data.hours;
+      const HOUR_DATA_KEYS = new Set([
+        "imgSrc",
+        "datetime",
+        "temp",
+        "humidity",
+        "windSpeed",
+        "windDegree",
+        "pressure",
+        "cloudCover",
+        "uv",
+        "rainingChance"
+      ]);
+      // IDK IF NEEDED
+      this.hours = data.hours.map((hour) =>
+        Object.fromEntries(
+          Object.entries(hour).filter((entry) => HOUR_DATA_KEYS.has(entry[0]))
+        )
+      );
+      // this.hours = data.hours;
       this.todayAQI = {
         pm2_5: data.aqi.pm2_5.toPrecision(1),
         pm10: data.aqi.pm10.toPrecision(1)
       };
+      this.sunrise = data.sunrise;
+      this.sunset = data.sunset;
+      this.minTemp = data.minTemp;
+      this.maxTemp = data.maxTemp;
       // console.log(data);
       this.setSelectedHour(this.currentHour);
     },
@@ -164,8 +180,7 @@ export default {
         return;
       }
       this.$refs.hours.scrollLeft =
-        this.$refs.hour[0].clientWidth *
-        (this.selectedHour.datetime.getHours() - 4);
+        this.$refs.hour[0].clientWidth * this.selectedHour.datetime.getHours();
     },
     setSelectedHour(hour) {
       this.selectedHour = hour;
@@ -174,6 +189,7 @@ export default {
   watch: {
     latlng() {
       this.getTodayWeatherData(this.latlng);
+      this.scrollToSelectedHour();
     },
     hours() {
       this.$nextTick(() => {

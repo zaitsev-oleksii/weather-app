@@ -1,6 +1,6 @@
 <template>
   <!-- <button @click="setupLeafletMap">BTN</button> -->
-  <div id="mapContainer" class="rounded-md"></div>
+  <div id="mapContainer" class="h-full w-full"></div>
 </template>
 
 <script>
@@ -77,6 +77,7 @@ export default {
         this.map
       );
 
+      // console.log({ lat: position.lat, lng: position.lng });
       this.$emit("location-chosen", { lat: position.lat, lng: position.lng });
     },
 
@@ -92,16 +93,11 @@ export default {
 
       // console.log("watch called", this.center);
       this.center = [this.mapCenter.lat, this.mapCenter.lng];
-      console.log(this.center);
+      // console.log(this.center);
       this.changeLocation();
     }
   }
 };
 </script>
 
-<style>
-#mapContainer {
-  width: 100%;
-  height: 200px;
-}
-</style>
+<style></style>
