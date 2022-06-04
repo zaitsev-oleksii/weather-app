@@ -1,49 +1,49 @@
-const WEATHER_API_KEY = "42e19325d76941a898082725222805";
+// const WEATHER_API_KEY = "42e19325d76941a898082725222805";
+const WEATHER_API_KEY = "f88d5cc2fbae75f7dfa60fd059792f0c";
+const PLACE_BY_LOC_KEY = "42e19325d76941a898082725222805";
 const AUTOCOMPLETE_ACCESS_TOKEN = "pk.c4c504420e844b45f50ec36aa44e6098";
 let autocomplete_ts = Date.now();
 
-export const getCurrentWeatherData = async ({ lat, lng }) => {
-  // Openweather
-  // const API_KEY = "f88d5cc2fbae75f7dfa60fd059792f0c";
-  // const reqURL = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lng}&appid=${API_KEY}`;
-  // Weatherapi
-  if (!(lat && lng)) {
-    return;
-  }
-  const reqURL = `http://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=${lat},${lng}`;
+const unixTsToJsTs = (unixTs) => unixTs * 1000;
+
+export const getCurrentWeatherData = async (location) => {
+  const { lat, lng } = location;
+
+  // Openweathermap
+  const reqURL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${WEATHER_API_KEY}`;
   const parsedData = await fetch(reqURL)
     .then((res) => res.json())
-    .then((res) => res.current)
+    // .then((res) => res.current)
     .catch((error) => {
       console.log(
         "Error occured while getting current weather from API. ",
         error
       );
     });
+
+  console.log(parsedData);
   if (!parsedData) {
     return;
   }
-  const imgSrc = parsedData.condition.icon;
-  const datetime = parsedData.last_updated;
-  const currentTemp = parsedData.temp_c;
-  const text = parsedData.condition.text;
-  const feelsLikeTemp = parsedData.feelslike_c;
 
+  const temp = parsedData.main.temp;
+  const feelsLikeTemp = parsedData.main.feels_like;
+  const text = parsedData.weather.description;
+  const datetime = unixTsToJsTs(parsedData.dt);
+  console.log(datetime);
   return {
-    imgSrc,
     datetime,
-    currentTemp,
+    temp,
     text,
     feelsLikeTemp
   };
 };
 
-export const getTodayWeatherData = async ({ lat, lng }) => {
-  // Weatherapi
-  if (!(lat && lng)) {
-    return;
-  }
-  const reqURL = `http://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${lat},${lng}&days=1&aqi=yes`;
+export const getHourlyWeatherData = async (location) => {
+  const { lat, lng } = location;
+  // Openweathermap
+
+  const reqURL = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lng}&appid=${WEATHER_API_KEY}`;
   const parsedData = await fetch(reqURL)
     .then((res) => res.json())
     .catch((error) => {
@@ -52,59 +52,54 @@ export const getTodayWeatherData = async ({ lat, lng }) => {
         error
       );
     });
-  // console.log(parsedData);
-  const hours = parsedData.forecast.forecastday[0].hour.map((hour) => ({
-    imgSrc: hour.condition.icon,
-    datetime: new Date(hour.time),
-    temp: hour.temp_c,
-    humidity: hour.humidity,
-    windSpeed: hour.wind_kph,
-    windDegree: hour.wind_degree,
-    pressure: hour.pressure_in,
-    cloudCover: hour.cloud,
-    uv: hour.uv,
-    rainingChance: hour.chance_of_rain
-  }));
+
+  const nextDayStr = `${new Date().getFullYear()}-${
+    new Date().getMonth() + 1
+  }-${new Date().getDate() + 1}`;
+  const nextDayTs = Date.parse(nextDayStr);
+
+  const hours = parsedData.hourly
+    .filter((hour) => unixTsToJsTs(hour.dt) < nextDayTs)
+    .map((hour) => ({
+      datetime: unixTsToJsTs(hour.dt),
+      temp: hour.temp - 273.15,
+      humidity: hour.humidity,
+      windSpeed: hour.wind_speed,
+      windDegree: hour.wind_deg,
+      pressure: hour.pressure * 0.02953,
+      cloudCover: hour.clouds,
+      uv: hour.uvi
+    }));
 
   return {
-    hours,
-    aqi: {
-      pm2_5: parsedData.current.air_quality.pm2_5,
-      pm10: parsedData.current.air_quality.pm10
-    },
-    sunrise: parsedData.forecast.forecastday[0].astro.sunrise,
-    sunset: parsedData.forecast.forecastday[0].astro.sunset,
-    minTemp: parsedData.forecast.forecastday[0].day.mintemp_c,
-    maxTemp: parsedData.forecast.forecastday[0].day.maxtemp_c
+    hours
   };
 };
 
-export const getForecastWeatherData = async ({ lat, lng }) => {
-  // Weatherapi
-  if (!(lat && lng)) {
-    return;
-  }
-  const reqURL = `http://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=${lat},${lng}&days=7`;
+export const getDailyWeatherData = async (location) => {
+  const { lat, lng } = location;
+
+  // Openwethermap
+  const reqURL = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lng}&appid=${WEATHER_API_KEY}`;
   const parsedData = await fetch(reqURL)
     .then((res) => res.json())
-    .then((r) => r.forecast.forecastday)
     .catch((error) => {
       console.log(
         "Error occured while getting today weather from API. ",
         error
       );
     });
-  // console.log(parsedData);
-  const days = parsedData.map((forecastday) => ({
-    imgSrc: forecastday.day.condition.icon,
-    datetime: new Date(forecastday.date),
-    minTemp: forecastday.day.mintemp_c,
-    maxTemp: forecastday.day.maxtemp_c,
-    sunrise: forecastday.astro.sunrise,
-    sunset: forecastday.astro.sunset,
-    rainingChance: forecastday.day.daily_chance_of_rain,
-    humidity: forecastday.day.avghumidity,
-    uv: forecastday.day.uv
+
+  const days = parsedData.daily.map((day) => ({
+    datetime: unixTsToJsTs(day.dt),
+    avgTemp:
+      (day.temp.day + day.temp.eve + day.temp.morn + day.temp.night) / 4 -
+      273.15,
+    sunrise: unixTsToJsTs(day.sunrise),
+    sunset: unixTsToJsTs(day.sunset),
+    rainingChance: day.pop * 100,
+    humidity: day.humidity,
+    uv: day.uvi
   }));
 
   return { days };
@@ -117,7 +112,6 @@ export const getPlacesAutocompleteSuggestions = async (prefix, limit) => {
 
   // SAD STORY TO HANDLE 2 REQS/S API LIMIT
   if (Date.now() - autocomplete_ts < 500) {
-    // console.log("hi");
     return;
   }
   if (prefix?.length < 2) {
@@ -127,16 +121,10 @@ export const getPlacesAutocompleteSuggestions = async (prefix, limit) => {
   const parsedPlacesData = await fetch(
     `https://api.locationiq.com/v1/autocomplete.php?key=${AUTOCOMPLETE_ACCESS_TOKEN}&q=${prefix}`
   )
-    .then((res) => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        console.log(res.status);
-      }
-    })
+    .then((res) => res.json())
     .catch((error) => {
       console.log(
-        "Error occured while getting today weather from API. ",
+        "Error occured while getting autocomplete suggestions. ",
         error
       );
     });
@@ -157,11 +145,9 @@ export const getPlacesAutocompleteSuggestions = async (prefix, limit) => {
 };
 
 export const getPlaceByLocation = async (location) => {
-  if (!location) {
-    return;
-  }
   const { lat, lng } = location;
-  const reqURL = `http://api.weatherapi.com/v1/search.json?key=${WEATHER_API_KEY}&q=${lat},${lng}`;
+
+  const reqURL = `http://api.weatherapi.com/v1/search.json?key=${PLACE_BY_LOC_KEY}&q=${lat},${lng}`;
   const parsedData = await fetch(reqURL)
     .then((res) => res.json())
     .then((r) => r[0])
