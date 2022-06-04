@@ -13,7 +13,7 @@
           <div class="mt-2 w-full h-full rounded-3xl overflow-hidden">
             <leaflet-map
               :mapCenter="currentLocation"
-              @location-chosen="handleChooseLoc"
+              @location-chosen="handleChooseLocation"
             />
           </div>
         </div>
@@ -22,11 +22,30 @@
         </div>
       </div>
       <template v-if="currentLocation">
-        <div class="mt-14 px-5 w-full h-48">
-          <span class="float-left ml-2 w-full text-2xl text-white font-semibold"
-            >Hourly</span
+        <div class="mt-20 px-5 w-full h-48">
+          <span
+            class="float-left ml-2 w-full text-2xl text-white font-semibold"
           >
-          <today-weather :latlng="currentLocation" />
+            <span
+              @click="setCurrentTab(tabs.today)"
+              :class="{
+                'opacity-60': currentTab !== tabs.today
+              }"
+              >Hourly</span
+            >
+            <span
+              class="ml-5"
+              @click="setCurrentTab(tabs.daily)"
+              :class="{
+                'opacity-60': currentTab !== tabs.daily
+              }"
+              >Daily</span
+            >
+          </span>
+          <!-- <today-weather :latlng="currentLocation" /> -->
+          <keep-alive>
+            <component :is="currentTabComponent" :latlng="currentLocation" />
+          </keep-alive>
         </div>
       </template>
     </div>
@@ -79,7 +98,7 @@
 import LocationForm from "./components/LocationForm.vue";
 import CurrentWeather from "./components/CurrentWeather.vue";
 import TodayWeather from "./components/TodayWeather.vue";
-import ForecastWeather from "./components/ForecastWeather.vue";
+import DailyWeather from "./components/DailyWeather.vue";
 import LeafletMap from "./components/LeafletMap.vue";
 
 import { computed, ref } from "vue";
@@ -88,12 +107,12 @@ import { getPlaceByLocation } from "./api";
 
 const tabs = {
   today: "today",
-  forecast: "forecast"
+  daily: "daily"
 };
 
 const tabComponents = {
   today: "TodayWeather",
-  forecast: "ForecastWeather"
+  daily: "DailyWeather"
 };
 
 export default {
@@ -102,7 +121,7 @@ export default {
     LocationForm,
     CurrentWeather,
     TodayWeather,
-    ForecastWeather,
+    DailyWeather,
     LeafletMap
   },
 
@@ -120,18 +139,14 @@ export default {
         return;
       }
       currentLocationPlace.value = await getPlaceByLocation(loc);
-      
-      // console.log(currentLocationPlace);
     };
 
-    const handleChooseLoc = (loc) => {
-      // console.log(loc);
+    const handleChooseLocation = (loc) => {
       currentLocation.value = loc;
       setCurrentLocationPlace(currentLocation.value);
-      // console.log(currentLocation.value);
     };
+
     const setCurrentTab = (tab) => {
-      console.log(tab);
       currentTab.value = tab;
     };
 
@@ -139,7 +154,7 @@ export default {
       currentLocation,
       currentLocationPlace,
       currentTab,
-      handleChooseLoc,
+      handleChooseLocation,
       setCurrentTab,
       currentTabComponent,
       tabs

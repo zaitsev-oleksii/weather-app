@@ -44,92 +44,44 @@
       </div>
     </div>
   </div>
-  <!-- <span class="text-2xl">Today's Highlights</span>
-  <div class="flex flex-wrap justify-around gap-7 w-full mt-5 p-5">
-    <weather-details
-      :aqi="todayAQI ? Math.max(...Object.values(todayAQI)) : undefined"
-      :sunrise="sunrise"
-      :sunset="sunset"
-      :minTemp="minTemp"
-      :maxTemp="maxTemp"
-    />
-  </div>
-
-  <span class="text-2xl mt-10">Hourly</span>
-  <div
-    ref="hours"
-    class="flex gap-1 w-full mt-5 overflow-x-auto snap-x snap-mandatory no-scrollbar"
-  >
-    <div
-      ref="hour"
-      v-for="(hour, idx) in hours"
-      :key="hour"
-      class="p-2 w-20 snap-center bg-slate-300 rounded-md text-center"
-      :class="{
-        'bg-slate-400': hour === selectedHour,
-        'ml-auto': idx === 0,
-        'mr-auto': idx === hours.length - 1
-      }"
-      @click="setSelectedHour(hour)"
-    >
-      <h3>
-        {{
-          (hour.datetime.getHours().toString().length === 1
-            ? "0" + hour.datetime.getHours()
-            : hour.datetime.getHours()) + ":00"
-        }}
-      </h3>
-      <img :src="hour.imgSrc" alt="weather" />
-      <h3>{{ hour.temp }} °C</h3>
-    </div>
-  </div>
-
-  <div
-    class="flex flex-wrap justify-around gap-7 w-full mt-5 p-5"
-    v-if="selectedHour"
-  >
-    <weather-details
-      :humidity="selectedHour.humidity"
-      :windSpeed="selectedHour.windSpeed"
-      :windDegree="selectedHour.windDegree"
-      :pressure="selectedHour.pressure"
-      :cloudCover="selectedHour.cloudCover"
-      :uv="selectedHour.uv"
-      :rainingChance="selectedHour.rainingChance"
-    />
-  </div> -->
 </template>
 
 <script>
-import { getTodayWeatherData as getData } from "../api";
+import { getHourlyWeatherData as getHourlyWeatherDataAPI } from "../api";
 
 import WeatherDetails from "./WeatherDetails.vue";
+
+const kelvinsToCelsius = (temp) => temp - 273.15;
+const kpaToInhg = (pressure) => pressure * 0.02953;
 
 export default {
   name: "TodayWeather",
   components: { WeatherDetails },
+
   data() {
     return {
       hours: [],
-      selectedHour: null,
-      todayAQI: null,
-      sunrise: "",
-      sunset: "",
-      minTemp: undefined,
-      maxTemp: undefined
+      selectedHour: null
     };
   },
+
   props: {
     latlng: Object
   },
+
   mounted() {
-    if (this.latlng) {
-      this.getTodayWeatherData(this.latlng);
+    if (this.latlng && this.hours.length === 0) {
+      this.getHourlyWeatherData(this.latlng);
     }
   },
+
   activated() {
+    if (this.latlng && this.hours.length === 0) {
+      this.getHourlyWeatherData(this.latlng);
+    }
     this.scrollToSelectedHour();
   },
+
   computed: {
     currentHour() {
       return this.hours.find(
@@ -142,60 +94,62 @@ export default {
       );
     }
   },
+
   methods: {
-    async getTodayWeatherData({ lat, lng }) {
-      const data = await getData({ lat, lng });
+    async getHourlyWeatherData({ lat, lng }) {
+      const data = await getHourlyWeatherDataAPI({ lat, lng });
       const HOUR_DATA_KEYS = new Set([
-        "imgSrc",
         "datetime",
         "temp",
         "humidity",
         "windSpeed",
-        "windDegree",
         "pressure",
         "cloudCover",
         "uv",
         "rainingChance"
       ]);
-      // IDK IF NEEDED
-      this.hours = data.hours.map((hour) =>
+
+      const hours = data.hours.map((hour) =>
         Object.fromEntries(
           Object.entries(hour).filter((entry) => HOUR_DATA_KEYS.has(entry[0]))
         )
       );
-      // this.hours = data.hours;
-      this.todayAQI = {
-        pm2_5: data.aqi.pm2_5.toPrecision(1),
-        pm10: data.aqi.pm10.toPrecision(1)
-      };
-      this.sunrise = data.sunrise;
-      this.sunset = data.sunset;
-      this.minTemp = data.minTemp;
-      this.maxTemp = data.maxTemp;
-      // console.log(data);
+      for (const hour of hours) {
+        hour.datetime = new Date(hour.datetime);
+        hour.temp = kelvinsToCelsius(hour.temp);
+        hour.pressure = kpaToInhg(hour.pressure);
+      }
+
+      this.hours = hours;
       this.setSelectedHour(this.currentHour);
     },
+
     scrollToSelectedHour() {
       if (!this.$refs.hour) {
         return;
       }
       this.$refs.hours.scrollLeft =
-        this.$refs.hour[0].clientWidth * this.selectedHour.datetime.getHours();
+        this.$refs.hour[0].clientWidth *
+        (this.selectedHour.datetime.getHours() + 2);
     },
+
     setSelectedHour(hour) {
       this.selectedHour = hour;
     }
   },
+
   watch: {
     latlng() {
-      this.getTodayWeatherData(this.latlng);
-      this.scrollToSelectedHour();
-    },
-    hours() {
-      this.$nextTick(() => {
-        this.scrollToSelectedHour();
-      });
+      this.getHourlyWeatherData(this.latlng);
+      // this.$nextTick().then(() => {
+      //   this.scrollToSelectedHour();
+      // });
     }
+    // hours() {
+    //   this.$nextTick().then(() => {
+    //     this.scrollToSelectedHour();
+    //   });
+    // }
   }
 };
 </script>

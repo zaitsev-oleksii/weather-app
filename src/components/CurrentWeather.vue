@@ -6,7 +6,7 @@
     <div class="float-left flex flex-col grow w-2/5 h-full">
       <span class="w-full">
         <span class="text-7xl font-bold text-white">{{
-          currentTemp?.toFixed(0)
+          temp?.toFixed(0)
         }}</span>
         <span class="ml-2 text-4xl align-top font-bold text-white">°C</span>
       </span>
@@ -51,6 +51,8 @@
 <script>
 import { getCurrentWeatherData as getData } from "../api";
 
+const kelvinsToCelsius = (temp) => temp - 273.15;
+
 export default {
   name: "CurrentWeather",
   props: {
@@ -59,9 +61,9 @@ export default {
   data() {
     return {
       place: "",
-      currentTemp: undefined,
+      temp: undefined,
       feelsLikeTemp: undefined,
-      imgSrc: "",
+      // imgSrc: "",
       datetime: "",
       text: ""
     };
@@ -79,11 +81,11 @@ export default {
   methods: {
     async getCurrentWeatherData({ lat, lng }) {
       const data = await getData({ lat, lng });
-      this.imgSrc = data.imgSrc;
-      this.datetime = data.datetime;
-      this.currentTemp = data.currentTemp;
+      // this.imgSrc = data.imgSrc;
+      this.datetime = new Date(data.datetime);
+      this.temp = kelvinsToCelsius(data.temp);
       this.text = data.text;
-      this.feelsLikeTemp = data.feelsLikeTemp;
+      this.feelsLikeTemp = kelvinsToCelsius(data.feelsLikeTemp);
     }
   },
   watch: {

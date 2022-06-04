@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-row gap-4 shrink-0 basis-24 w-full h-full">
-    <weather-detail-card v-if="humidity">
+    <weather-detail-card v-if="humidity !== undefined">
       <template #title> Humidity </template>
       <template #value> {{ humidity }}% </template>
       <template #icon
@@ -8,7 +8,7 @@
       /></template>
     </weather-detail-card>
 
-    <weather-detail-card v-if="windSpeed">
+    <weather-detail-card v-if="windSpeed !== undefined">
       <template #title> Wind </template>
       <template #value> {{ windSpeed }}</template>
       <template #icon
@@ -16,7 +16,7 @@
       /></template>
     </weather-detail-card>
 
-    <weather-detail-card v-if="pressure">
+    <weather-detail-card v-if="pressure !== undefined">
       <template #title> Pressure </template>
       <template #value> {{ pressure.toFixed(0) }} in</template>
       <template #icon
@@ -24,7 +24,7 @@
       /></template>
     </weather-detail-card>
 
-    <weather-detail-card v-if="cloudCover">
+    <weather-detail-card v-if="cloudCover !== undefined">
       <template #title> Cloud </template>
       <template #value> {{ cloudCover }}% </template>
       <template #icon
@@ -32,12 +32,36 @@
       /></template>
     </weather-detail-card>
 
-    <weather-detail-card v-if="uv">
+    <weather-detail-card v-if="uv !== undefined">
       <template #title> UV </template>
       <template #value> {{ uv }}</template>
       <template #icon
         ><img :src="icons.uvIcon" alt="" class="w-full h-full"
       /></template>
+    </weather-detail-card>
+
+    <weather-detail-card v-if="rainingChance !== undefined">
+      <template #title> Rain </template>
+      <template #value>{{ rainingChance }}%</template>
+      <template #icon
+        ><img :src="icons.rainIcon" alt="" class="w-full h-full"
+      /></template>
+    </weather-detail-card>
+
+    <weather-detail-card v-if="sunrise">
+      <template #title> Sunrise </template>
+      <template #value>
+        {{ new Date(sunrise).toTimeString().slice(0, 5) }}
+      </template>
+      <template #icon></template>
+    </weather-detail-card>
+
+    <weather-detail-card v-if="sunset">
+      <template #title> Sunset </template>
+      <template #value>
+        {{ new Date(sunset).toTimeString().slice(0, 5) }}</template
+      >
+      <template #icon></template>
     </weather-detail-card>
   </div>
   <!-- <weather-detail-card
@@ -146,20 +170,18 @@ import windIcon from "../assets/icons/wind.svg";
 import pressureIcon from "../assets/icons/pressure.svg";
 import cloudIcon from "../assets/icons/cloudness.svg";
 import uvIcon from "../assets/icons/uv.svg";
+import rainIcon from "../assets/icons/rain.svg";
 
 const icons = {
   humidityIcon,
   windIcon,
   pressureIcon,
   cloudIcon,
-  uvIcon
+  uvIcon,
+  rainIcon
 };
 
-const wdCardConfig = {
-  oneValue: "oneValue",
-  twoValues: "twoValues",
-  custom: "custom"
-};
+// const tsToTimeString = (ts) => new Date(ts).toTimeString().slice(0, 5);
 
 export default {
   name: "WeatherDetails",
@@ -172,16 +194,15 @@ export default {
     cloudCover: Number,
     aqi: Number,
     uv: Number,
-    sunrise: String,
-    sunset: String,
+    sunrise: Number,
+    sunset: Number,
     rainingChance: Number,
     minTemp: Number,
     maxTemp: Number
   },
   setup() {
     return {
-      icons,
-      wdCardConfig
+      icons
     };
   }
 };
