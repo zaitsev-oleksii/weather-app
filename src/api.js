@@ -150,7 +150,7 @@ export const getPlacesAutocompleteSuggestions = async (prefix, limit) => {
     .map((place) => ({
       placeName: place.display_name,
       lat: place.lat,
-      lon: place.lon
+      lng: place.lon
     }))
     .slice(0, limit);
 };
