@@ -21,19 +21,26 @@ export const getCurrentWeatherData = async (location) => {
       );
     });
 
-  console.log(parsedData);
+  // console.log(parsedData);
   if (!parsedData) {
     return;
   }
 
   const temp = parsedData.main.temp;
   const feelsLikeTemp = parsedData.main.feels_like;
-  const text = parsedData.weather.description;
+  const text = parsedData.weather[0].description;
+  const weatherId = parsedData.weather[0].id;
   const datetime = unixTsToJsTs(parsedData.dt);
-  console.log(datetime);
+  const sunrise = unixTsToJsTs(parsedData.sys.sunrise);
+  const sunset = unixTsToJsTs(parsedData.sys.sunset);
+
+  // console.log(datetime);
   return {
     datetime,
+    sunrise,
+    sunset,
     temp,
+    weatherId,
     text,
     feelsLikeTemp
   };
@@ -62,17 +69,22 @@ export const getHourlyWeatherData = async (location) => {
     .filter((hour) => unixTsToJsTs(hour.dt) < nextDayTs)
     .map((hour) => ({
       datetime: unixTsToJsTs(hour.dt),
-      temp: hour.temp - 273.15,
+      temp: hour.temp,
       humidity: hour.humidity,
       windSpeed: hour.wind_speed,
       windDegree: hour.wind_deg,
-      pressure: hour.pressure * 0.02953,
+      pressure: hour.pressure,
       cloudCover: hour.clouds,
-      uv: hour.uvi
+      uv: hour.uvi,
+      weatherId: hour.weather[0].id
     }));
+  const sunrise = unixTsToJsTs(parsedData.daily[0].sunrise);
+  const sunset = unixTsToJsTs(parsedData.daily[0].sunset);
 
   return {
-    hours
+    hours,
+    sunrise,
+    sunset
   };
 };
 
@@ -92,14 +104,13 @@ export const getDailyWeatherData = async (location) => {
 
   const days = parsedData.daily.map((day) => ({
     datetime: unixTsToJsTs(day.dt),
-    avgTemp:
-      (day.temp.day + day.temp.eve + day.temp.morn + day.temp.night) / 4 -
-      273.15,
+    avgTemp: (day.temp.day + day.temp.eve + day.temp.morn + day.temp.night) / 4,
     sunrise: unixTsToJsTs(day.sunrise),
     sunset: unixTsToJsTs(day.sunset),
-    rainingChance: day.pop * 100,
+    rainingChance: day.pop,
     humidity: day.humidity,
-    uv: day.uvi
+    uv: day.uvi,
+    weatherId: day.weather[0].id
   }));
 
   return { days };

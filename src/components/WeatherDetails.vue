@@ -3,9 +3,7 @@
     <weather-detail-card v-if="humidity !== undefined">
       <template #title> Humidity </template>
       <template #value> {{ humidity }}% </template>
-      <template #icon
-        ><img :src="icons.humidityIcon" alt="" class="w-full h-full"
-      /></template>
+      <template #icon><humidity-icon :fill="humidity" /></template>
     </weather-detail-card>
 
     <weather-detail-card v-if="windSpeed !== undefined">
@@ -165,15 +163,15 @@
 <script>
 import WeatherDetailCard from "./WeatherDetailCard.vue";
 
-import humidityIcon from "../assets/icons/humidity.svg";
 import windIcon from "../assets/icons/wind.svg";
 import pressureIcon from "../assets/icons/pressure.svg";
-import cloudIcon from "../assets/icons/cloudness.svg";
+import cloudIcon from "../assets/icons/cloudiness.svg";
 import uvIcon from "../assets/icons/uv.svg";
 import rainIcon from "../assets/icons/rain.svg";
 
+import HumidityIcon from "./icons/HumidityIcon.vue";
+
 const icons = {
-  humidityIcon,
   windIcon,
   pressureIcon,
   cloudIcon,
@@ -185,7 +183,7 @@ const icons = {
 
 export default {
   name: "WeatherDetails",
-  components: { WeatherDetailCard },
+  components: { WeatherDetailCard, HumidityIcon },
   props: {
     humidity: Number,
     windSpeed: Number,

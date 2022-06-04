@@ -94,7 +94,6 @@
 </template>
 
 <script>
-/* eslint-disable */
 import LocationForm from "./components/LocationForm.vue";
 import CurrentWeather from "./components/CurrentWeather.vue";
 import TodayWeather from "./components/TodayWeather.vue";
@@ -128,7 +127,7 @@ export default {
   setup() {
     const currentLocation = ref(null);
     const currentLocationPlace = ref(null);
-    const currentTab = ref("today");
+    const currentTab = ref(tabs.today);
 
     const currentTabComponent = computed(() => {
       return tabComponents[currentTab.value];

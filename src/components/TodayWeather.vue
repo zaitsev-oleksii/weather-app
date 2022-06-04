@@ -31,8 +31,8 @@
                 : hour.datetime.getHours()) + ":00"
             }}</span>
             <span class="my-auto w-full"
-              ><i class="bi bi-cloud text-white text-6xl"></i
-            ></span>
+              ><img :src="hour.weatherIcon" alt=""
+            /></span>
             <span class="mt-auto mb-1 w-full">
               <span class="mt-auto text-3xl font-bold text-white">{{
                 hour.temp.toFixed(0)
@@ -49,6 +49,8 @@
 <script>
 import { getHourlyWeatherData as getHourlyWeatherDataAPI } from "../api";
 
+import { weatherConditionIconConfig as iconConfig } from "../config";
+
 import WeatherDetails from "./WeatherDetails.vue";
 
 const kelvinsToCelsius = (temp) => temp - 273.15;
@@ -61,7 +63,9 @@ export default {
   data() {
     return {
       hours: [],
-      selectedHour: null
+      selectedHour: null,
+      sunrise: undefined,
+      sunset: undefined
     };
   },
 
@@ -99,6 +103,7 @@ export default {
     async getHourlyWeatherData({ lat, lng }) {
       const data = await getHourlyWeatherDataAPI({ lat, lng });
       const HOUR_DATA_KEYS = new Set([
+        "id",
         "datetime",
         "temp",
         "humidity",
@@ -106,8 +111,12 @@ export default {
         "pressure",
         "cloudCover",
         "uv",
-        "rainingChance"
+        "rainingChance",
+        "weatherId"
       ]);
+
+      const sunrise = new Date(data.sunrise);
+      const sunset = new Date(data.sunset);
 
       const hours = data.hours.map((hour) =>
         Object.fromEntries(
@@ -118,9 +127,18 @@ export default {
         hour.datetime = new Date(hour.datetime);
         hour.temp = kelvinsToCelsius(hour.temp);
         hour.pressure = kpaToInhg(hour.pressure);
+        if (hour.weatherId) {
+          const iconPath = "assets/icons/condition";
+          const iconName = iconConfig[hour.weatherId];
+          const time =
+            sunrise < hour.datetime && hour.datetime < sunset ? "day" : "night";
+
+          hour.weatherIcon = require(`@/${iconPath}/${time}/${iconName}`);
+        }
       }
 
       this.hours = hours;
+
       this.setSelectedHour(this.currentHour);
     },
 

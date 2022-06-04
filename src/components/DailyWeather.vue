@@ -29,8 +29,8 @@
               day.datetime.toDateString().slice(0, 4)
             }}</span>
             <span class="my-auto w-full"
-              ><i class="bi bi-cloud text-white text-6xl"></i
-            ></span>
+              ><img :src="day.weatherIcon" alt=""
+            /></span>
             <span class="mt-auto mb-1 w-full">
               <span class="mt-auto text-3xl font-bold text-white">{{
                 day.avgTemp.toFixed(0)
@@ -46,6 +46,8 @@
 
 <script>
 import { getDailyWeatherData as getDailyWeatherDataAPI } from "../api";
+
+import { weatherConditionIconConfig as iconConfig } from "../config";
 
 import WeatherDetails from "./WeatherDetails.vue";
 
@@ -103,7 +105,8 @@ export default {
         "sunset",
         "rainingChance",
         "humidity",
-        "uv"
+        "uv",
+        "weatherId"
       ]);
 
       const days = data.days.map((day) =>
@@ -116,6 +119,13 @@ export default {
         day.datetime = new Date(day.datetime);
         day.avgTemp = kelvinsToCelsius(day.avgTemp);
         day.rainingChance = day.rainingChance * 100;
+        if (day.weatherId) {
+          const iconPath = "assets/icons/condition";
+          const iconName = iconConfig[day.weatherId];
+          const time = "day";
+
+          day.weatherIcon = require(`@/${iconPath}/${time}/${iconName}`);
+        }
       }
 
       this.days = days;
