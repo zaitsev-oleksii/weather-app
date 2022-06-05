@@ -1,10 +1,12 @@
 <template>
-  <div class="relative w-full h-full bg-white" ref="searchBox">
+  <div
+    class="relative w-full h-full rounded-3xl overflow-hidden bg-white"
+    ref="searchBox"
+  >
     <input
       v-model="searchString"
       type="text"
       class="px-5 w-full h-full border-0 text-xl font-semibold"
-      @keydown.enter="handleEnterClick"
     />
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -25,18 +27,41 @@
   </template>
   <template v-if="suggestions.length > 0">
     <div
+      class="fixed h-36 bg-white z-[1300] rounded-3xl overflow-hidden"
+      :style="{
+        left: searchInputBoxOffsetX + 'px',
+        top: searchInputBoxOffsetY + 'px',
+        width: searchInputBoxWidth + 'px',
+        height: searchInputBoxHeight + 'px'
+      }"
+    >
+      <input
+        v-model="searchString"
+        type="text"
+        class="px-5 w-full h-full border-0 text-xl font-semibold"
+        @keydown.enter="handleEnterClick"
+        @keydown.tab="catchFocus"
+        ref="searchInput"
+      />
+    </div>
+    <div
       class="fixed top-20 z-[1200] p-2 bg-custom-gunmetal rounded-2xl"
       :style="{
         left: suggestionsBoxOffsetX + 'px',
+        top: suggestionsBoxOffsetY + 'px',
         width: suggestionsBoxWidth + 'px'
       }"
     >
       <div class="flex flex-col gap-2 w-full h-full">
         <div
-          class="px-4 py-2 w-full text-left text-xl text-white bg-custom-dark-gunmetal rounded-xl"
+          class="px-4 py-2 w-full text-left text-xl text-white bg-custom-dark-gunmetal rounded-xl hover:cursor-pointer"
+          tabindex="1"
           v-for="(suggestion, idx) in suggestions"
           :key="idx"
           @click="handleSuggestionClick(suggestion)"
+          @keydown.enter="handleSuggestionClick(suggestion)"
+          @keydown.tab="catchFocus"
+          ref="suggestionBoxes"
         >
           {{ suggestion.placeName }}
         </div>
@@ -56,23 +81,83 @@ const emit = defineEmits({ "location-chosen": null });
 const searchString = ref("");
 const suggestions = ref([]);
 
+const searchInputBoxOffsetX = ref(undefined);
+const searchInputBoxOffsetY = ref(undefined);
+const searchInputBoxWidth = ref(undefined);
+const searchInputBoxHeight = ref(undefined);
 const suggestionsBoxOffsetX = ref(undefined);
+const suggestionsBoxOffsetY = ref(undefined);
 const suggestionsBoxWidth = ref(undefined);
 
 const searchBox = ref(null);
+const searchInput = ref(null);
+const suggestionBoxes = ref(null);
+
+const calculateSearchInputBoxPosition = () => {
+  searchInputBoxOffsetX.value = searchBox.value.getBoundingClientRect().x;
+  searchInputBoxOffsetY.value = searchBox.value.getBoundingClientRect().y;
+  searchInputBoxWidth.value = searchBox.value.getBoundingClientRect().width;
+  searchInputBoxHeight.value = searchBox.value.getBoundingClientRect().height;
+};
 
 const calculateSuggestionsBoxPosition = () => {
   suggestionsBoxOffsetX.value = searchBox.value.getBoundingClientRect().x;
+  suggestionsBoxOffsetY.value =
+    searchBox.value.getBoundingClientRect().y +
+    searchBox.value.getBoundingClientRect().height +
+    20; // HARDCODED MARGIN-TOP FROM INPUT
   suggestionsBoxWidth.value = searchBox.value.getBoundingClientRect().width;
 };
 
-onMounted(() => {
+const calculateModalPosition = () => {
+  calculateSearchInputBoxPosition();
   calculateSuggestionsBoxPosition();
-  window.addEventListener("resize", calculateSuggestionsBoxPosition);
+};
+
+const catchFocus = (event) => {
+  if (!suggestionBoxes.value || !searchInput.value) {
+    return;
+  }
+
+  const searchInputElement = searchInput.value;
+  const firstSuggestionBoxElement = suggestionBoxes.value[0];
+  const lastSuggestionBoxElement =
+    suggestionBoxes.value[suggestionBoxes.value.length - 1];
+
+  if (document.activeElement === searchInputElement) {
+    if (event.shiftKey) {
+      lastSuggestionBoxElement.focus();
+    } else {
+      firstSuggestionBoxElement.focus();
+    }
+    event.preventDefault();
+    return;
+  }
+
+  if (document.activeElement === firstSuggestionBoxElement) {
+    if (event.shiftKey) {
+      searchInputElement.focus();
+      event.preventDefault();
+    }
+    return;
+  }
+
+  if (document.activeElement === lastSuggestionBoxElement) {
+    if (!event.shiftKey) {
+      searchInputElement.focus();
+      event.preventDefault();
+    }
+    return;
+  }
+};
+
+onMounted(() => {
+  calculateModalPosition();
+  window.addEventListener("resize", calculateModalPosition);
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener("resize", calculateSuggestionsBoxPosition);
+  window.removeEventListener("resize", calculateModalPosition);
 });
 
 const clearSuggestions = () => {
@@ -82,6 +167,7 @@ const clearSuggestions = () => {
 const handleSuggestionClick = (suggestion) => {
   emit("location-chosen", { lat: suggestion.lat, lng: suggestion.lng });
   clearSuggestions();
+  searchString.value = "";
 };
 
 const handleEnterClick = async () => {
@@ -98,6 +184,7 @@ const handleEnterClick = async () => {
 
   emit("location-chosen", { lat: place.lat, lng: place.lng });
   clearSuggestions();
+  searchString.value = "";
 };
 
 watch(searchString, async () => {
