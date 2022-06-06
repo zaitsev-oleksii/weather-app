@@ -1,6 +1,9 @@
 <template>
-  <div class="w-full h-full">
-    <div class="float-left mt-3 pr-3 w-62/100 h-full" v-if="selectedDay">
+  <div class="flex flex-col lg:flex-row w-full lg:h-full">
+    <div
+      class="order-last lg:order-first mt-3 w-full lg:w-62/100 h-44 lg:h-full"
+      v-if="selectedDay"
+    >
       <weather-details
         :humidity="selectedDay.humidity"
         :sunrise="selectedDay.sunrise"
@@ -9,7 +12,9 @@
         :uv="selectedDay.uv"
       />
     </div>
-    <div class="float-left mt-3 pl-3 w-38/100 h-full">
+    <div
+      class="order-first lg:order-last mt-3 lg:pl-6 w-full lg:w-38/100 h-44 lg:h-full"
+    >
       <div class="p-3 w-full h-full rounded-3xl bg-custom-dark-gunmetal">
         <div
           class="flex flex-row gap-3 w-full h-full rounded-3xl overflow-x-auto snap-x snap-mandatory no-scrollbar"

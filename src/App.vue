@@ -1,32 +1,39 @@
 <template>
   <div class="container">
-    <div class="w-2/3 h-screen px-10 py-5 mx-auto bg-custom-bunker">
-      <div class="float-right mr-3 w-2/3 h-10 rounded-3xl overflow-hidden">
-        <places-search @location-chosen="handleChooseLocation" />
+    <div
+      class="flex flex-col overflow-y-auto w-screen lg:w-2/3 h-screen px-10 py-5 mx-auto bg-custom-bunker"
+    >
+      <div class="flex flex-row">
+        <div class="ml-auto mr-3 w-2/3 h-10">
+          <places-search @location-chosen="handleChooseLocation" />
+        </div>
       </div>
-      <div class="mt-14 w-full h-64">
-        <div class="float-left h-full w-5/12 px-5">
+      <div class="flex flex-col lg:flex-row mt-14 w-full h-auto lg:h-64">
+        <div class="h-full w-full lg:w-5/12 px-5">
           <span
             class="ml-2 w-full text-2xl text-white font-semibold"
             v-if="currentLocationPlace"
             >{{ currentLocationPlace.name }},
             {{ currentLocationPlace.country }}</span
           >
-          <div class="mt-2 w-full h-full rounded-3xl overflow-hidden">
+          <div class="mt-2 w-full h-64 lg:h-full rounded-3xl overflow-hidden">
             <leaflet-map
               :mapCenter="currentLocation"
               @location-chosen="handleChooseLocation"
             />
           </div>
         </div>
-        <div class="float-left w-7/12 px-5 h-full" v-if="currentLocation">
+        <div
+          class="mt-14 lg:mt-0 w-full lg:w-7/12 px-5 h-64"
+          v-if="currentLocation"
+        >
           <current-weather :latlng="currentLocation" />
         </div>
       </div>
       <template v-if="currentLocation">
-        <div class="mt-20 px-5 w-full h-48">
+        <div class="flex flex-col mt-20 px-5 w-full h-48">
           <span
-            class="float-left ml-2 w-full text-2xl text-white font-semibold"
+            class="flex flex-row ml-2 w-full text-2xl text-white font-semibold"
           >
             <span
               @click="setCurrentTab(tabs.today)"
@@ -55,7 +62,6 @@
 </template>
 
 <script>
-// import LocationForm from "./components/LocationForm.vue";
 import PlacesSearch from "./components/PlacesSearch.vue";
 import CurrentWeather from "./components/CurrentWeather.vue";
 import TodayWeather from "./components/TodayWeather.vue";
