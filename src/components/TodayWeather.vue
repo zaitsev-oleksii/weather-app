@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col lg:flex-row w-full lg:h-full">
+  <div class="flex flex-col xl:flex-row w-full xl:h-full">
     <div
-      class="order-last lg:order-first mt-3 w-full lg:w-62/100 h-44 lg:h-full"
+      class="order-last xl:order-first mt-3 w-full xl:w-62/100 h-44 xl:h-full"
       v-if="selectedHour"
     >
       <weather-details
@@ -13,7 +13,7 @@
       />
     </div>
     <div
-      class="order-first lg:order-last mt-3 lg:pl-6 w-full lg:w-38/100 h-44 lg:h-full"
+      class="order-first xl:order-last mt-3 xl:pl-6 w-full xl:w-38/100 h-44 xl:h-full"
     >
       <div class="p-3 w-full h-full rounded-3xl bg-custom-dark-gunmetal">
         <div

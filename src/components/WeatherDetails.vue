@@ -40,7 +40,7 @@
 
     <weather-detail-card v-if="rainingChance !== undefined">
       <template #title> Rain </template>
-      <template #value>{{ rainingChance }}%</template>
+      <template #value>{{ rainingChance.toFixed(0) }}%</template>
       <template #icon
         ><img :src="icons.rainIcon" alt="" class="w-full h-full"
       /></template>
