@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-row">
     <div class="ml-auto mr-6 w-2/3 h-10">
-      <places-search @location-chosen="handleChooseLocation" />
+      <places-search />
     </div>
     <div class="w-10 h-10">
       <router-link to="/settings"
@@ -18,17 +18,14 @@
         {{ currentLocationPlace.country }}</span
       >
       <div class="mt-2 w-full h-full rounded-3xl overflow-hidden">
-        <leaflet-map
-          :mapCenter="currentLocation"
-          @location-chosen="handleChooseLocation"
-        />
+        <leaflet-map :mapCenter="currentLocation" />
       </div>
     </div>
     <div
       class="mt-14 lg:mt-0 w-full lg:w-7/12 px-5 h-64"
       v-if="currentLocation"
     >
-      <current-weather :latlng="currentLocation" />
+      <current-weather />
     </div>
   </div>
   <template v-if="currentLocation">
@@ -50,15 +47,17 @@
           >Daily</span
         >
       </span>
-      <!-- <today-weather :latlng="currentLocation" /> -->
       <keep-alive>
-        <component :is="currentTabComponent" :latlng="currentLocation" />
+        <component :is="currentTabComponent" />
       </keep-alive>
     </div>
   </template>
 </template>
 
 <script>
+import { computed, ref, watch } from "vue";
+import { useStore } from "vuex";
+
 import PlacesSearch from "../components/PlacesSearch.vue";
 import CurrentWeather from "../components/CurrentWeather.vue";
 import TodayWeather from "../components/TodayWeather.vue";
@@ -66,8 +65,6 @@ import DailyWeather from "../components/DailyWeather.vue";
 import LeafletMap from "../components/LeafletMap.vue";
 
 import settingsIcon from "../assets/icons/gear.svg";
-
-import { computed, ref } from "vue";
 
 import { getPlaceByLocation } from "../api";
 
@@ -92,35 +89,41 @@ export default {
   },
 
   setup() {
-    const currentLocation = ref(null);
+    const store = useStore();
+    // const currentLocation = ref(null);
     const currentLocationPlace = ref(null);
     const currentTab = ref(tabs.today);
+
+    const currentLocation = computed(() => store.state.location);
 
     const currentTabComponent = computed(() => {
       return tabComponents[currentTab.value];
     });
 
-    const setCurrentLocationPlace = async (loc) => {
+    const setCurrentLocationPlace = async () => {
       if (!currentLocation.value) {
         return;
       }
-      currentLocationPlace.value = await getPlaceByLocation(loc);
+      currentLocationPlace.value = await getPlaceByLocation(
+        currentLocation.value
+      );
     };
 
-    const handleChooseLocation = (loc) => {
-      currentLocation.value = loc;
-      setCurrentLocationPlace(currentLocation.value);
-    };
+    // const handleChooseLocation = (loc) => {
+    //   store.state.location = loc;
+    //   setCurrentLocationPlace(currentLocation.value);
+    // };
 
     const setCurrentTab = (tab) => {
       currentTab.value = tab;
     };
 
+    watch(currentLocation, setCurrentLocationPlace);
+
     return {
       currentLocation,
       currentLocationPlace,
       currentTab,
-      handleChooseLocation,
       setCurrentTab,
       currentTabComponent,
       tabs,

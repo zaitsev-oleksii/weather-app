@@ -23,9 +23,9 @@
           <div
             class="flex flex-col shrink-0 basis-24 p-2 h-full text-center rounded-2xl bg-custom-gunmetal"
             :class="{
-              'bg-custom-abbey': day === selectedDay
+              'bg-custom-abbey': day?.datetime === selectedDay?.datetime
             }"
-            v-for="day in days"
+            v-for="day in displayedDays"
             :key="day"
             @click="setSelectedDay(day)"
             ref="hour"
@@ -40,7 +40,19 @@
               <span class="mt-auto text-3xl font-bold text-white">{{
                 day.avgTemp.toFixed(0)
               }}</span>
-              <span class="align-top font-bold text-white">°C</span>
+              <span class="align-top font-bold text-white"
+                >°<span
+                  v-if="
+                    tempPreference === preferencesConfig.temperature.celsius
+                  "
+                  >C</span
+                ><span
+                  v-if="
+                    tempPreference === preferencesConfig.temperature.fahrenheit
+                  "
+                  >F</span
+                ></span
+              >
             </span>
           </div>
         </div>
@@ -50,58 +62,75 @@
 </template>
 
 <script>
+import { ref, computed, watch, onMounted, onActivated } from "vue";
+import { useStore } from "vuex";
+
 import { getDailyWeatherData as getDailyWeatherDataAPI } from "../api";
 
-import { weatherConditionIconConfig as iconConfig } from "../config";
+import {
+  weatherConditionIconConfig as iconConfig,
+  preferencesConfig
+} from "../config";
 
 import WeatherDetails from "./WeatherDetails.vue";
 
-const kelvinsToCelsius = (temp) => temp - 273.15;
+import { kelvinsToPreferredTemp } from "../helpers";
 
-// const parseTime = (ts) => {
-//   // return new Date(new Date().toString().slice(0, 16) + " " + str)
-//   //   .toString()
-//   //   .slice(16, 21);
-//   return new Date(ts).toTimeString().slice(0, 5);
-// };
+const getWeatherIconPath = (weatherId) => {
+  if (!weatherId) return;
+
+  const iconPath = "assets/icons/condition";
+  const iconName = iconConfig[weatherId];
+  const time = "day";
+
+  return require(`@/${iconPath}/${time}/${iconName}`);
+};
 
 export default {
   name: "DailyWeather",
   components: { WeatherDetails },
 
-  data() {
-    return {
-      days: [],
-      selectedDay: null
-    };
-  },
+  setup() {
+    const store = useStore();
 
-  props: {
-    latlng: Object
-  },
+    const daysData = ref([]);
+    const selectedDay = ref(null);
 
-  mounted() {
-    if (this.days.length === 0 && this.latlng) {
-      this.getDailyForecast(this.latlng);
-    }
-  },
+    onMounted(() => {
+      if (currentLocation.value && daysData.value.length === 0) {
+        getDailyForecast(currentLocation.value).then(() =>
+          setSelectedDay(currentDay.value)
+        );
+      }
+    });
 
-  activated() {
-    if (this.days.length === 0 && this.latlng) {
-      this.getDailyForecast(this.latlng);
-    }
-  },
+    onActivated(() => {
+      if (currentLocation.value && daysData.value.length === 0) {
+        getDailyForecast(currentLocation.value).then(() =>
+          setSelectedDay(currentDay.value)
+        );
+      }
+    });
 
-  computed: {
-    currentDay() {
-      return this.days.find(
+    const displayedDays = computed(() => {
+      return daysData.value.map((day) => ({
+        ...day,
+        datetime: new Date(day.datetime),
+        avgTemp: kelvinsToPreferredTemp(day.avgTemp, tempPreference.value),
+        weatherIcon: getWeatherIconPath(day.weatherId) ?? ""
+      }));
+    });
+
+    const currentDay = computed(() => {
+      return displayedDays.value.find(
         (day) => day.datetime.toDateString() === new Date().toDateString()
       );
-    }
-  },
+    });
 
-  methods: {
-    async getDailyForecast({ lat, lng }) {
+    const currentLocation = computed(() => store.state.location);
+    const tempPreference = computed(() => store.state.tempPreference);
+
+    const getDailyForecast = async ({ lat, lng }) => {
       const data = await getDailyWeatherDataAPI({ lat, lng });
       const DAY_DATA_KEYS = new Set([
         "datetime",
@@ -120,32 +149,26 @@ export default {
         )
       );
 
-      for (const day of days) {
-        day.datetime = new Date(day.datetime);
-        day.avgTemp = kelvinsToCelsius(day.avgTemp);
-        day.rainingChance = day.rainingChance * 100;
-        if (day.weatherId) {
-          const iconPath = "assets/icons/condition";
-          const iconName = iconConfig[day.weatherId];
-          const time = "day";
+      daysData.value = days;
+    };
 
-          day.weatherIcon = require(`@/${iconPath}/${time}/${iconName}`);
-        }
-      }
+    const setSelectedDay = (day) => {
+      selectedDay.value = day;
+    };
 
-      this.days = days;
-      this.setSelectedDay(this.currentDay);
-    },
+    watch(currentLocation, () =>
+      getDailyForecast(currentLocation.value).then(() =>
+        setSelectedDay(currentDay.value)
+      )
+    );
 
-    setSelectedDay(day) {
-      this.selectedDay = day;
-    }
-  },
-
-  watch: {
-    latlng() {
-      this.getDailyForecast(this.latlng);
-    }
+    return {
+      displayedDays,
+      selectedDay,
+      setSelectedDay,
+      tempPreference,
+      preferencesConfig
+    };
   }
 };
 </script>

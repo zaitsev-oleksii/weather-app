@@ -23,10 +23,6 @@ export default {
     mapCenter: null
   },
 
-  emits: {
-    "location-chosen": null
-  },
-
   mounted() {
     this.setupLeafletMap();
   },
@@ -78,7 +74,11 @@ export default {
       );
 
       // console.log({ lat: position.lat, lng: position.lng });
-      this.$emit("location-chosen", { lat: position.lat, lng: position.lng });
+      // this.$emit("location-chosen", { lat: position.lat, lng: position.lng });
+      this.$store.commit("setLocation", {
+        lat: position.lat,
+        lng: position.lng
+      });
     },
 
     changeLocation() {

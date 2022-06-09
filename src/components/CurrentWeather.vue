@@ -8,7 +8,15 @@
         <span class="text-7xl font-bold text-white">{{
           temp?.toFixed(0)
         }}</span>
-        <span class="ml-2 text-4xl align-top font-bold text-white">°C</span>
+        <span class="ml-2 text-4xl align-top font-bold text-white"
+          >°<span
+            v-if="tempPreference === preferencesConfig.temperature.celsius"
+            >C</span
+          ><span
+            v-if="tempPreference === preferencesConfig.temperature.fahrenheit"
+            >F</span
+          ></span
+        >
       </span>
       <span class="mt-1 w-full text-white"
         >Feels like {{ feelsLikeTemp?.toFixed(0) }} °</span
@@ -35,91 +43,94 @@
         />
       </svg> -->
       <span class="self-end w-full mt-auto text-white font-semibold">{{
-        text
+        weatherConditionText.substring(0, 1).toUpperCase() +
+        weatherConditionText.substring(1)
       }}</span>
     </div>
   </div>
-  <!-- <div class="w-full flex p-3 bg-slate-300 rounded-md">
-    <div class="w-2/5 float-left flex flex-col">
-      <img :src="imgSrc" alt="" class="ml-1 w-16 h-16" />
-      <span class="ml-2 text-left font-semibold text-lg">{{ text }}</span>
-      <span class="ml-2 text-left">{{ time }}</span>
-    </div>
-    <div class="w-3/5 float-right p-2 flex flex-col">
-      <span class="text-right font-bold text-5xl">{{ currentTemp }}°</span>
-      <span class="text-right text-md mt-4"
-        >Feels like {{ feelsLikeTemp }}°
-      </span>
-    </div>
-  </div> -->
 </template>
 
 <script>
+import { ref, computed, watch, onMounted } from "vue";
+import { useStore } from "vuex";
+
 import { getCurrentWeatherData as getData } from "../api";
 
-import { weatherConditionIconConfig as iconConfig } from "../config";
+import {
+  weatherConditionIconConfig as iconConfig,
+  preferencesConfig
+} from "../config";
 
-const kelvinsToCelsius = (temp) => temp - 273.15;
+import { kelvinsToPreferredTemp } from "../helpers";
 
 export default {
   name: "CurrentWeather",
-  props: {
-    latlng: Object
-  },
-  data() {
-    return {
-      weatherId: undefined,
-      place: "",
-      temp: undefined,
-      feelsLikeTemp: undefined,
-      sunrise: undefined,
-      sunset: undefined,
-      // imgSrc: "",
-      datetime: "",
-      text: ""
-    };
-  },
-  mounted() {
-    if (this.latlng) {
-      this.getCurrentWeatherData(this.latlng);
-    }
-  },
-  computed: {
-    time() {
-      return this.datetime.slice(-5);
-    },
-    isDay() {
-      return this.sunrise < this.datetime && this.datetime < this.sunset;
-    },
-    weatherIcon() {
-      if (!this.weatherId) {
+  setup() {
+    const store = useStore();
+
+    const weatherId = ref(undefined);
+    const temp = ref(undefined);
+    const feelsLikeTemp = ref(undefined);
+    const sunrise = ref(undefined);
+    const sunset = ref(undefined);
+    const datetime = ref(undefined);
+    const weatherConditionText = ref("");
+
+    const currentLocation = computed(() => store.state.location);
+
+    onMounted(() => {
+      if (currentLocation.value) {
+        getCurrentWeatherData(currentLocation.value);
+      }
+    });
+
+    // const time = computed(() => datetime.value.slice(-5));
+
+    const isDay = computed(() => {
+      return sunrise.value < datetime.value && datetime.value < sunset.value;
+    });
+
+    const weatherIcon = computed(() => {
+      if (!weatherId.value) {
         return;
       }
 
       const iconPath = "assets/icons/condition";
-      const iconName = iconConfig[this.weatherId];
-      const time = this.isDay ? "day" : "night";
+      const iconName = iconConfig[weatherId.value];
+      const time = isDay.value ? "day" : "night";
 
       return require(`@/${iconPath}/${time}/${iconName}`);
-    }
-  },
-  methods: {
-    async getCurrentWeatherData({ lat, lng }) {
+    });
+
+    const tempPreference = computed(() => store.state.tempPreference);
+
+    const getCurrentWeatherData = async ({ lat, lng }) => {
       const data = await getData({ lat, lng });
-      // this.imgSrc = data.imgSrc;
-      this.datetime = new Date(data.datetime);
-      this.sunrise = new Date(data.sunrise);
-      this.sunset = new Date(data.sunset);
-      this.temp = kelvinsToCelsius(data.temp);
-      this.weatherId = data.weatherId;
-      this.text = data.text;
-      this.feelsLikeTemp = kelvinsToCelsius(data.feelsLikeTemp);
-    }
-  },
-  watch: {
-    latlng() {
-      this.getCurrentWeatherData(this.latlng);
-    }
+
+      datetime.value = new Date(data.datetime);
+      sunrise.value = new Date(data.sunrise);
+      sunset.value = new Date(data.sunset);
+      temp.value = kelvinsToPreferredTemp(data.temp, tempPreference.value);
+      weatherId.value = data.weatherId;
+      weatherConditionText.value = data.text;
+      feelsLikeTemp.value = kelvinsToPreferredTemp(
+        data.feelsLikeTemp,
+        tempPreference.value
+      );
+    };
+
+    watch(currentLocation, () => {
+      getCurrentWeatherData(currentLocation.value);
+    });
+
+    return {
+      temp,
+      feelsLikeTemp,
+      tempPreference,
+      preferencesConfig,
+      weatherIcon,
+      weatherConditionText
+    };
   }
 };
 </script>

@@ -168,7 +168,7 @@ export const getPlaceByLocation = async (location) => {
   if (!parsedData) {
     return;
   }
-  console.log(parsedData);
+  // console.log(parsedData);
   return {
     name: parsedData.name,
     country: parsedData.country,

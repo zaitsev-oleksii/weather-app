@@ -66,3 +66,19 @@ export const weatherConditionIconConfig = {
   803: icons.clouds,
   804: icons.clouds
 };
+
+export const preferencesConfig = {
+  temperature: {
+    celsius: "celsius",
+    fahrenheit: "fahrenheit"
+  },
+  windSpeed: {
+    kmph: "kmph",
+    mph: "mph",
+    mps: "mps"
+  },
+  pressure: {
+    inhg: "inhg",
+    kpa: "kpa"
+  }
+};
