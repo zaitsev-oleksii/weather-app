@@ -9,7 +9,7 @@ const icons = {
   mist: "mist.svg"
 };
 
-export const weatherConditionIconConfig = {
+const weatherConditionIconConfig = {
   200: icons.thunderstorm,
   201: icons.thunderstorm,
   202: icons.thunderstorm,
@@ -67,7 +67,7 @@ export const weatherConditionIconConfig = {
   804: icons.clouds
 };
 
-export const preferencesConfig = {
+const units = {
   temperature: {
     celsius: "celsius",
     fahrenheit: "fahrenheit"
@@ -81,4 +81,26 @@ export const preferencesConfig = {
     inhg: "inhg",
     kpa: "kpa"
   }
+};
+
+const displayedUnits = {
+  temperature: {
+    [units.temperature.celsius]: "C",
+    [units.temperature.fahrenheit]: "F"
+  },
+  windSpeed: {
+    [units.windSpeed.kmph]: "", //"kph",
+    [units.windSpeed.mph]: "", //"mph",
+    [units.windSpeed.mps]: "" //"m/s"
+  },
+  pressure: {
+    [units.pressure.inhg]: "in",
+    [units.pressure.kpa]: "" //"kpa"
+  }
+};
+
+export {
+  units as preferencesConfig,
+  displayedUnits,
+  weatherConditionIconConfig
 };

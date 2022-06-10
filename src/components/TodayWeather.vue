@@ -37,19 +37,7 @@
                 hour.temp.toFixed(0)
               }}</span>
               <span class="align-top font-bold text-white"
-                >°
-                <span
-                  v-if="
-                    tempPreference === preferencesConfig.temperature.celsius
-                  "
-                  >C</span
-                >
-                <span
-                  v-if="
-                    tempPreference === preferencesConfig.temperature.fahrenheit
-                  "
-                  >F</span
-                ></span
+                >°{{ displayedTempUnit }}</span
               >
             </span>
           </div>
@@ -67,7 +55,8 @@ import { getHourlyWeatherData as getHourlyWeatherDataAPI } from "../api";
 
 import {
   weatherConditionIconConfig as iconConfig,
-  preferencesConfig
+  preferencesConfig,
+  displayedUnits
 } from "../config";
 
 import WeatherDetails from "./WeatherDetails.vue";
@@ -92,6 +81,11 @@ export default {
 
   setup() {
     const store = useStore();
+    const currentLocation = computed(() => store.state.location);
+    const tempPreference = computed(() => store.state.preferences.temperature);
+    const displayedTempUnit = computed(
+      () => displayedUnits["temperature"][tempPreference.value]
+    );
 
     const hoursData = ref([]);
     const selectedHour = ref(null);
@@ -119,9 +113,6 @@ export default {
         (hour) => new Date(hour.datetime).getHours() === new Date().getHours()
       );
     });
-
-    const currentLocation = computed(() => store.state.location);
-    const tempPreference = computed(() => store.state.tempPreference);
 
     const displayedHours = computed(() => {
       return hoursData.value.map((hour) => {
@@ -182,6 +173,7 @@ export default {
       displayedHours,
       selectedHour,
       preferencesConfig,
+      displayedTempUnit,
       setSelectedHour,
       tempPreference
     };

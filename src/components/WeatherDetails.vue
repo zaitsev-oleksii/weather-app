@@ -2,13 +2,15 @@
   <div class="flex flex-row gap-4 shrink-0 basis-24 w-full h-full">
     <weather-detail-card v-if="humidity !== undefined">
       <template #title> Humidity </template>
-      <template #value> {{ humidity }}% </template>
+      <template #value> {{ humidity }} </template>
+      <template #unit>%</template>
       <template #icon><humidity-icon :fill="humidity" /></template>
     </weather-detail-card>
 
     <weather-detail-card v-if="windSpeed !== undefined">
       <template #title> Wind </template>
       <template #value> {{ formattedWindSpeed }}</template>
+      <template #unit>{{ displayedWindSpeedUnit }}</template>
       <template #icon
         ><img :src="icons.windIcon" alt="" class="w-full h-full"
       /></template>
@@ -16,7 +18,8 @@
 
     <weather-detail-card v-if="pressure !== undefined">
       <template #title> Pressure </template>
-      <template #value> {{ formattedPressure }} {{ pressureUnit }}</template>
+      <template #value> {{ formattedPressure }} </template>
+      <template #unit>{{ displayedPressureUnit }}</template>
       <template #icon
         ><img :src="icons.pressureIcon" alt="" class="w-full h-full"
       /></template>
@@ -24,7 +27,8 @@
 
     <weather-detail-card v-if="cloudCover !== undefined">
       <template #title> Cloud </template>
-      <template #value> {{ cloudCover }}% </template>
+      <template #value> {{ cloudCover }} </template>
+      <template #unit>%</template>
       <template #icon
         ><img :src="icons.cloudIcon" alt="" class="w-full h-full"
       /></template>
@@ -32,7 +36,7 @@
 
     <weather-detail-card v-if="uv !== undefined">
       <template #title> UV </template>
-      <template #value> {{ uv }}</template>
+      <template #value> {{ uv }} </template>
       <template #icon
         ><img :src="icons.uvIcon" alt="" class="w-full h-full"
       /></template>
@@ -40,7 +44,8 @@
 
     <weather-detail-card v-if="rainingChance !== undefined">
       <template #title> Rain </template>
-      <template #value>{{ rainingChance.toFixed(0) }}%</template>
+      <template #value>{{ rainingChance.toFixed(0) }}</template>
+      <template #unit>%</template>
       <template #icon
         ><img :src="icons.rainIcon" alt="" class="w-full h-full"
       /></template>
@@ -68,7 +73,7 @@
 import { computed } from "vue";
 import { useStore } from "vuex";
 
-import { preferencesConfig } from "../config";
+import { preferencesConfig, displayedUnits } from "../config";
 import { formatPressure, formatWindSpeed } from "../helpers";
 
 import WeatherDetailCard from "./WeatherDetailCard.vue";
@@ -111,8 +116,10 @@ export default {
   setup(props) {
     const store = useStore();
 
-    const windSpeedPreference = computed(() => store.state.windSpeedPreference);
-    const pressurePreference = computed(() => store.state.pressurePreference);
+    const windSpeedPreference = computed(
+      () => store.state.preferences.windSpeed
+    );
+    const pressurePreference = computed(() => store.state.preferences.pressure);
 
     const formattedWindSpeed = computed(() =>
       formatWindSpeed(props.windSpeed, windSpeedPreference.value).toFixed(1)
@@ -120,19 +127,18 @@ export default {
     const formattedPressure = computed(() =>
       formatPressure(props.pressure, pressurePreference.value).toFixed(0)
     );
-
-    const pressureUnit = computed(() => {
-      if (pressurePreference.value === preferencesConfig.pressure.inhg)
-        return "in";
-      if (pressurePreference.value === preferencesConfig.pressure.kpa)
-        return "kpa";
-      return "";
-    });
+    const displayedWindSpeedUnit = computed(
+      () => displayedUnits["windSpeed"][windSpeedPreference.value]
+    );
+    const displayedPressureUnit = computed(
+      () => displayedUnits["pressure"][pressurePreference.value]
+    );
 
     return {
       formattedWindSpeed,
       formattedPressure,
-      pressureUnit,
+      displayedWindSpeedUnit,
+      displayedPressureUnit,
       icons,
       preferencesConfig
     };

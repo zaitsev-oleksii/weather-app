@@ -41,17 +41,7 @@
                 day.avgTemp.toFixed(0)
               }}</span>
               <span class="align-top font-bold text-white"
-                >°<span
-                  v-if="
-                    tempPreference === preferencesConfig.temperature.celsius
-                  "
-                  >C</span
-                ><span
-                  v-if="
-                    tempPreference === preferencesConfig.temperature.fahrenheit
-                  "
-                  >F</span
-                ></span
+                >°{{ displayedTempUnit }}</span
               >
             </span>
           </div>
@@ -69,7 +59,8 @@ import { getDailyWeatherData as getDailyWeatherDataAPI } from "../api";
 
 import {
   weatherConditionIconConfig as iconConfig,
-  preferencesConfig
+  preferencesConfig,
+  displayedUnits
 } from "../config";
 
 import WeatherDetails from "./WeatherDetails.vue";
@@ -92,6 +83,11 @@ export default {
 
   setup() {
     const store = useStore();
+    const currentLocation = computed(() => store.state.location);
+    const tempPreference = computed(() => store.state.preferences.temperature);
+    const displayedTempUnit = computed(
+      () => displayedUnits["temperature"][tempPreference.value]
+    );
 
     const daysData = ref([]);
     const selectedDay = ref(null);
@@ -126,9 +122,6 @@ export default {
         (day) => day.datetime.toDateString() === new Date().toDateString()
       );
     });
-
-    const currentLocation = computed(() => store.state.location);
-    const tempPreference = computed(() => store.state.tempPreference);
 
     const getDailyForecast = async ({ lat, lng }) => {
       const data = await getDailyWeatherDataAPI({ lat, lng });
@@ -167,6 +160,7 @@ export default {
       selectedDay,
       setSelectedDay,
       tempPreference,
+      displayedTempUnit,
       preferencesConfig
     };
   }

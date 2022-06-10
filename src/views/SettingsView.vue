@@ -114,20 +114,28 @@ export default {
   setup() {
     const store = useStore();
 
-    const tempPreference = computed(() => store.state.tempPreference);
-    const windSpeedPreference = computed(() => store.state.windSpeedPreference);
-    const pressurePreference = computed(() => store.state.pressurePreference);
+    const tempPreference = computed(() => store.state.preferences.temperature);
+    const windSpeedPreference = computed(
+      () => store.state.preferences.windSpeed
+    );
+    const pressurePreference = computed(() => store.state.preferences.pressure);
 
     // const tempPreference = ref(preferencesConfig.temperature.celsius);
     // const windSpeedPreference = ref(preferencesConfig.windSpeed.kmph);
     // const pressurePreference = ref(preferencesConfig.pressure.inhg);
 
+    const updatePreferences = (prefName, newPref) => {
+      store.commit("setPreferences", {
+        [prefName]: newPref
+      });
+    };
+
     const setTempPreference = (newPref) =>
-      store.commit("setTempPreference", newPref);
+      updatePreferences("temperature", newPref);
     const setWindSpeedPreference = (newPref) =>
-      store.commit("setWindSpeedPreference", newPref);
+      updatePreferences("windSpeed", newPref);
     const setPressurePreference = (newPref) =>
-      store.commit("setPressurePreference", newPref);
+      updatePreferences("pressure", newPref);
 
     return {
       tempPreference,
