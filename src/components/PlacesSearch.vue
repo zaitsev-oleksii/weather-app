@@ -4,6 +4,7 @@
     ref="searchBox"
   >
     <input
+      v-if="suggestions.length === 0"
       v-model="searchString"
       type="text"
       class="px-5 w-full h-full border-0 text-xl font-semibold"
@@ -74,9 +75,10 @@
 import { getPlacesAutocompleteSuggestions } from "../api";
 const SUGGESTION_KEYS = new Set(["placeName", "lat", "lng"]);
 
-import { ref, watch, onMounted, onBeforeUnmount, defineEmits } from "vue";
+import { ref, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
+import { useStore } from "vuex";
 
-const emit = defineEmits({ "location-chosen": null });
+const store = useStore();
 
 const searchString = ref("");
 const suggestions = ref([]);
@@ -164,8 +166,13 @@ const clearSuggestions = () => {
   suggestions.value = [];
 };
 
+const submitLocation = (location) => {
+  const { lat, lng } = location;
+  store.commit("setLocation", { lat, lng });
+};
+
 const handleSuggestionClick = (suggestion) => {
-  emit("location-chosen", { lat: suggestion.lat, lng: suggestion.lng });
+  submitLocation({ lat: suggestion.lat, lng: suggestion.lng });
   clearSuggestions();
   searchString.value = "";
 };
@@ -182,10 +189,16 @@ const handleEnterClick = async () => {
     return;
   }
 
-  emit("location-chosen", { lat: place.lat, lng: place.lng });
+  submitLocation({ lat: place.lat, lng: place.lng });
   clearSuggestions();
   searchString.value = "";
 };
+
+watch(suggestions, () => {
+  nextTick().then(() => {
+    if (searchInput?.value) searchInput.value.focus();
+  });
+});
 
 watch(searchString, async () => {
   if (searchString.value === "") {

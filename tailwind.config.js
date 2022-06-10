@@ -6,7 +6,8 @@ module.exports = {
         "custom-bunker": "#151e23",
         "custom-dark-gunmetal": "#1f282d",
         "custom-gunmetal": "#2a3137",
-        "custom-abbey": "#495154"
+        "custom-abbey": "#495154",
+        "azureish-white": "#dfeaf2"
       },
       width: {
         "62/100": "62%",
