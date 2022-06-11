@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch, onMounted } from "vue";
 import { useStore } from "vuex";
 
 import PlacesSearch from "../components/PlacesSearch.vue";
@@ -111,10 +111,7 @@ export default {
       );
     };
 
-    // const handleChooseLocation = (loc) => {
-    //   store.state.location = loc;
-    //   setCurrentLocationPlace(currentLocation.value);
-    // };
+    onMounted(() => setCurrentLocationPlace());
 
     const setCurrentTab = (tab) => {
       currentTab.value = tab;
