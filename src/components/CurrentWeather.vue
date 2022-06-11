@@ -1,21 +1,21 @@
 <template>
-  <span class="ml-2 text-2xl text-white">{{
+  <span class="ml-2 text-2xl text-azureish-white">{{
     new Date().toGMTString().slice(0, 11)
   }}</span>
   <div class="mt-2 w-full h-full px-8 py-5 rounded-3xl bg-custom-dark-gunmetal">
     <div class="float-left flex flex-col grow w-2/5 h-full">
       <span class="w-full">
-        <span class="text-7xl font-bold text-white">{{
+        <span class="text-7xl font-bold text-azureish-white">{{
           temp?.toFixed(0)
         }}</span>
-        <span class="ml-2 text-4xl align-top font-bold text-white"
+        <span class="ml-2 text-4xl align-top font-bold text-azureish-white"
           >°{{ displayedTempUnit }}</span
         >
       </span>
-      <span class="mt-1 w-full text-white"
+      <span class="mt-1 w-full text-azureish-white"
         >Feels like {{ feelsLikeTemp?.toFixed(0) }} °</span
       >
-      <span class="self-end w-full mt-auto text-white"
+      <span class="self-end w-full mt-auto text-azureish-white"
         >GMT - {{ new Date().toGMTString().slice(17, 22) }}</span
       >
     </div>
@@ -26,7 +26,7 @@
         alt=""
         class="ml-10 w-2/3 h-2/3"
       />
-      <span class="self-end w-full mt-auto text-white font-semibold">{{
+      <span class="self-end w-full mt-auto text-azureish-white font-semibold">{{
         weatherConditionText.substring(0, 1).toUpperCase() +
         weatherConditionText.substring(1)
       }}</span>

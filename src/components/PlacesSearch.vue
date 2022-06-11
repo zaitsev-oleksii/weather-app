@@ -1,13 +1,13 @@
 <template>
   <div
-    class="relative w-full h-full rounded-3xl overflow-hidden bg-white"
+    class="relative w-full h-full rounded-3xl overflow-hidden bg-azureish-white"
     ref="searchBox"
   >
     <input
       v-if="suggestions.length === 0"
       v-model="searchString"
       type="text"
-      class="px-5 w-full h-full border-0 text-xl font-semibold"
+      class="px-5 w-full h-full border-0 text-xl font-semibold bg-azureish-white"
     />
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +28,7 @@
   </template>
   <template v-if="suggestions.length > 0">
     <div
-      class="fixed h-36 bg-white z-[1300] rounded-3xl overflow-hidden"
+      class="fixed h-36 bg-azureish-white z-[1300] rounded-3xl overflow-hidden"
       :style="{
         left: searchInputBoxOffsetX + 'px',
         top: searchInputBoxOffsetY + 'px',
@@ -39,7 +39,7 @@
       <input
         v-model="searchString"
         type="text"
-        class="px-5 w-full h-full border-0 text-xl font-semibold"
+        class="px-5 w-full h-full border-0 text-xl font-semibold bg-azureish-white"
         @keydown.enter="handleEnterClick"
         @keydown.tab="catchFocus"
         ref="searchInput"
@@ -55,7 +55,7 @@
     >
       <div class="flex flex-col gap-2 w-full h-full">
         <div
-          class="px-4 py-2 w-full text-left text-xl text-white bg-custom-dark-gunmetal rounded-xl hover:cursor-pointer"
+          class="px-4 py-2 w-full text-left text-xl text-azureish-white bg-custom-dark-gunmetal rounded-xl hover:cursor-pointer"
           tabindex="1"
           v-for="(suggestion, idx) in suggestions"
           :key="idx"

@@ -3,11 +3,13 @@
 </template>
 
 <script>
-import "./leaflet.css";
+import "../assets/leaflet.css";
 import L from "leaflet";
 
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useStore } from "vuex";
+
+const intialCenter = [49.84, 24.03];
 
 export default {
   name: "LeafletMap",
@@ -15,11 +17,18 @@ export default {
   setup() {
     const store = useStore();
 
-    const center = ref([49.84, 24.03]);
     const map = ref(null);
     const marker = ref(null);
 
-    onMounted(() => setupLeafletMap());
+    const currentLocation = computed(() => store.state.location);
+
+    onMounted(() => {
+      setupLeafletMap();
+      if (currentLocation.value) {
+        changeLocation(currentLocation.value);
+        setMarker(currentLocation.value);
+      }
+    });
 
     const setupLeafletMap = () => {
       // Access token for mapbox
@@ -33,10 +42,10 @@ export default {
         }
       );
 
-      // eslint-disable-next-line
+      const center = currentLocation.value ?? intialCenter;
       map.value = L.map("mapContainer")
         .addLayer(mapboxTiles)
-        .setView(center.value, 12);
+        .setView(center, 12);
 
       map.value.on("click", handleMapClick);
     };
@@ -51,8 +60,9 @@ export default {
       });
     };
 
-    const changeLocation = () => {
-      map.value.panTo(center.value);
+    const changeLocation = (location) => {
+      const { lat, lng } = location;
+      map.value.panTo([lat, lng]);
     };
 
     const setMarker = (location) => {
@@ -70,17 +80,12 @@ export default {
       );
     };
 
-    watch(
-      () => store.state.location,
-      () => {
-        if (!store.state.location) return;
+    watch(currentLocation, () => {
+      if (!currentLocation.value) return;
 
-        center.value = [store.state.location.lat, store.state.location.lng];
-
-        changeLocation();
-        setMarker(store.state.location);
-      }
-    );
+      changeLocation(currentLocation.value);
+      setMarker(currentLocation.value);
+    });
   }
 };
 </script>

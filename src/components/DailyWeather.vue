@@ -30,17 +30,17 @@
             @click="setSelectedDay(day)"
             ref="hour"
           >
-            <span class="w-full text-white">{{
+            <span class="w-full text-azureish-white">{{
               day.datetime.toDateString().slice(0, 4)
             }}</span>
             <span class="my-auto w-full"
               ><img :src="day.weatherIcon" alt=""
             /></span>
             <span class="mt-auto mb-1 w-full">
-              <span class="mt-auto text-3xl font-bold text-white">{{
+              <span class="mt-auto text-3xl font-bold text-azureish-white">{{
                 day.avgTemp.toFixed(0)
               }}</span>
-              <span class="align-top font-bold text-white"
+              <span class="align-top font-bold text-azureish-white"
                 >°{{ displayedTempUnit }}</span
               >
             </span>

@@ -1,17 +1,17 @@
 <template>
   <div class="flex flex-row p-3 w-full h-10 justify-between">
-    <div class="text-white text-2xl font-semibold">Preferences</div>
+    <div class="text-azureish-white text-2xl font-semibold">Preferences</div>
     <div class="w-8 h-8">
       <router-link to="/"><img :src="backIcon" alt="" /></router-link>
     </div>
   </div>
   <div class="flex flex-col justify-evenly p-3 w-full h-full">
     <div class="w-full h-10">
-      <span class="text-white text-xl">Temperature</span>
+      <span class="text-azureish-white text-xl">Temperature</span>
       <div class="inline-flex ml-20" role="group">
         <button
           type="button"
-          class="w-20 rounded-l-lg px-6 py-2 bg-custom-gunmetal border-y-2 border-l-2 border-custom-abbey text-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+          class="w-20 rounded-l-lg px-6 py-2 bg-custom-gunmetal border-y-2 border-l-2 border-custom-abbey text-azureish-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
           :class="{
             'bg-custom-abbey font-bold border-r-2 border-neutral-300':
               tempPreference === preferencesConfig.temperature.celsius
@@ -22,7 +22,7 @@
         </button>
         <button
           type="button"
-          class="w-20 rounded-r-lg px-6 py-2 bg-custom-gunmetal border-y-2 border-r-2 border-custom-abbey text-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+          class="w-20 rounded-r-lg px-6 py-2 bg-custom-gunmetal border-y-2 border-r-2 border-custom-abbey text-azureish-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
           :class="{
             'bg-custom-abbey font-bold border-l-2 border-neutral-300':
               tempPreference === preferencesConfig.temperature.fahrenheit
@@ -34,11 +34,11 @@
       </div>
     </div>
     <div class="w-full h-10">
-      <span class="text-white text-xl">Wind speed</span>
+      <span class="text-azureish-white text-xl">Wind speed</span>
       <div class="inline-flex ml-20" role="group">
         <button
           type="button"
-          class="w-20 rounded-l-lg px-3 py-2 bg-custom-gunmetal border-y-2 border-l-2 border-custom-abbey text-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+          class="w-20 rounded-l-lg px-3 py-2 bg-custom-gunmetal border-y-2 border-l-2 border-custom-abbey text-azureish-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
           :class="{
             'bg-custom-abbey font-bold border-r-2 border-neutral-300':
               windSpeedPreference === preferencesConfig.windSpeed.kmph
@@ -49,7 +49,7 @@
         </button>
         <button
           type="button"
-          class="w-20 px-3 py-2 bg-custom-gunmetal border-y-2 border-custom-abbey text-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+          class="w-20 px-3 py-2 bg-custom-gunmetal border-y-2 border-custom-abbey text-azureish-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
           :class="{
             'bg-custom-abbey font-bold border-x-2 border-neutral-300':
               windSpeedPreference === preferencesConfig.windSpeed.mps
@@ -60,7 +60,7 @@
         </button>
         <button
           type="button"
-          class="w-20 rounded-r-lg px-3 py-2 bg-custom-gunmetal border-y-2 border-r-2 border-custom-abbey text-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+          class="w-20 rounded-r-lg px-3 py-2 bg-custom-gunmetal border-y-2 border-r-2 border-custom-abbey text-azureish-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
           :class="{
             'bg-custom-abbey font-bold border-l-2 border-neutral-300':
               windSpeedPreference === preferencesConfig.windSpeed.mph
@@ -72,11 +72,11 @@
       </div>
     </div>
     <div class="w-full h-10">
-      <span class="text-white text-xl">Pressure</span>
+      <span class="text-azureish-white text-xl">Pressure</span>
       <div class="inline-flex ml-20" role="group">
         <button
           type="button"
-          class="w-20 rounded-l-lg px-4 py-2 bg-custom-gunmetal border-y-2 border-l-2 border-custom-abbey text-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+          class="w-20 rounded-l-lg px-4 py-2 bg-custom-gunmetal border-y-2 border-l-2 border-custom-abbey text-azureish-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
           :class="{
             'bg-custom-abbey font-bold border-r-2 border-neutral-300':
               pressurePreference === preferencesConfig.pressure.inhg
@@ -87,7 +87,7 @@
         </button>
         <button
           type="button"
-          class="w-20 rounded-r-lg px-4 py-2 bg-custom-gunmetal border-y-2 border-r-2 border-custom-abbey text-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+          class="w-20 rounded-r-lg px-4 py-2 bg-custom-gunmetal border-y-2 border-r-2 border-custom-abbey text-azureish-white text-lg leading-tight uppercase hover:bg-custom-dark-gunmetal hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
           :class="{
             'bg-custom-abbey font-bold border-l-2 border-neutral-300':
               pressurePreference === preferencesConfig.pressure.kpa

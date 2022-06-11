@@ -12,7 +12,7 @@
   <div class="flex flex-col lg:flex-row mt-14 w-full h-auto lg:h-64">
     <div class="w-full h-64 lg:h-full lg:w-5/12 px-5">
       <span
-        class="inline-flex no-scrollbar pl-2 w-full whitespace-nowrap overflow-x-auto text-2xl text-white font-semibold"
+        class="inline-flex no-scrollbar pl-2 w-full whitespace-nowrap overflow-x-auto text-2xl text-azureish-white font-semibold"
         v-if="currentLocationPlace"
         >{{ currentLocationPlace.region }},
         {{ currentLocationPlace.country }}</span
@@ -30,7 +30,9 @@
   </div>
   <template v-if="currentLocation">
     <div class="flex flex-col mt-20 px-5 w-full h-48">
-      <span class="flex flex-row ml-2 w-full text-2xl text-white font-semibold">
+      <span
+        class="flex flex-row ml-2 w-full text-2xl text-azureish-white font-semibold"
+      >
         <span
           @click="setCurrentTab(tabs.today)"
           :class="{

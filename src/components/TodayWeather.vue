@@ -28,15 +28,15 @@
             :key="hour"
             @click="setSelectedHour(hour)"
           >
-            <span class="w-full text-white">{{ hour.time }}</span>
+            <span class="w-full text-azureish-white">{{ hour.time }}</span>
             <span class="my-auto w-full"
               ><img :src="hour.weatherIcon" alt=""
             /></span>
             <span class="mt-auto mb-1 w-full">
-              <span class="mt-auto text-3xl font-bold text-white">{{
+              <span class="mt-auto text-3xl font-bold text-azureish-white">{{
                 hour.temp.toFixed(0)
               }}</span>
-              <span class="align-top font-bold text-white"
+              <span class="align-top font-bold text-azureish-white"
                 >°{{ displayedTempUnit }}</span
               >
             </span>
@@ -119,7 +119,7 @@ export default {
         const timeStr = new Date(hour.datetime).getHours().toString();
         return {
           ...hour,
-          time: timeStr.length === 1 ? "0" + timeStr : timeStr + ":00",
+          time: timeStr.length === 1 ? "0" + timeStr + ":00" : timeStr + ":00",
           temp: kelvinsToPreferredTemp(hour.temp, tempPreference.value),
           weatherIcon:
             getWeatherIconPath(
