@@ -1,6 +1,6 @@
 // const WEATHER_API_KEY = "42e19325d76941a898082725222805";
 const WEATHER_API_KEY = "f88d5cc2fbae75f7dfa60fd059792f0c";
-const PLACE_BY_LOC_KEY = "42e19325d76941a898082725222805";
+// const PLACE_BY_LOC_KEY = "42e19325d76941a898082725222805";
 const AUTOCOMPLETE_ACCESS_TOKEN = "pk.c4c504420e844b45f50ec36aa44e6098";
 let autocomplete_ts = Date.now();
 
@@ -157,11 +157,10 @@ export const getPlacesAutocompleteSuggestions = async (prefix, limit) => {
 
 export const getPlaceByLocation = async (location) => {
   const { lat, lng } = location;
-
-  const reqURL = `http://api.weatherapi.com/v1/search.json?key=${PLACE_BY_LOC_KEY}&q=${lat},${lng}`;
+  const reqURL = `https://eu1.locationiq.com/v1/reverse.php?key=${AUTOCOMPLETE_ACCESS_TOKEN}&lat=${lat}&lon=${lng}&format=json`;
+  // const reqURL = `http://api.weatherapi.com/v1/search.json?key=${PLACE_BY_LOC_KEY}&q=${lat},${lng}`;
   const parsedData = await fetch(reqURL)
     .then((res) => res.json())
-    .then((r) => r[0])
     .catch((error) => {
       console.log("Error occured while getting place name from API. ", error);
     });
@@ -170,8 +169,6 @@ export const getPlaceByLocation = async (location) => {
   }
   // console.log(parsedData);
   return {
-    name: parsedData.name,
-    country: parsedData.country,
-    region: parsedData.region
+    name: parsedData.display_name
   };
 };

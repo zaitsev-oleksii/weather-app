@@ -14,8 +14,7 @@
       <span
         class="inline-flex no-scrollbar pl-2 w-full whitespace-nowrap overflow-x-auto text-2xl text-azureish-white font-semibold"
         v-if="currentLocationPlace"
-        >{{ currentLocationPlace.region }},
-        {{ currentLocationPlace.country }}</span
+        >{{ currentLocationPlace.name }}</span
       >
       <div class="mt-2 w-full h-full rounded-3xl overflow-hidden">
         <leaflet-map :mapCenter="currentLocation" />
