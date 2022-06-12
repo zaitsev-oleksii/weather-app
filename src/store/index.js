@@ -1,6 +1,8 @@
 import { createStore } from "vuex";
 
-import { preferencesConfig } from "./config";
+import { preferencesConfig } from "../config";
+
+import { localStoragePlugin } from "./local-storage";
 
 export const store = createStore({
   state() {
@@ -29,5 +31,6 @@ export const store = createStore({
         ...newPreferences
       };
     }
-  }
+  },
+  plugins: [localStoragePlugin]
 });
