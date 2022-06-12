@@ -12,7 +12,7 @@ import { useStore } from "vuex";
 const intialCenter = [49.84, 24.03];
 
 export default {
-  name: "LeafletMap",
+  name: "LocationPickerMap",
 
   setup() {
     const store = useStore();
